@@ -21,20 +21,6 @@ async function handleSignup(username, email, password, confirmPassword) {
         return;
     }
     
-    // Check if username is already taken
-    try {
-        const usernameQuery = query(collection(db, 'users'), where('username', '==', username));
-        const usernameSnapshot = await getDocs(usernameQuery);
-        if (!usernameSnapshot.empty) {
-            showError('Username is already taken. Please choose another.', signupForm);
-            return;
-        }
-    } catch (error) {
-        console.error('Error checking username:', error);
-        showError('Failed to verify username. Please try again.', signupForm);
-        return;
-    }
-    
     // Validate passwords match
     if (password !== confirmPassword) {
         showError('Passwords do not match. Please try again.', signupForm);
