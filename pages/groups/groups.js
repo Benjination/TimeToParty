@@ -137,10 +137,36 @@ function displayGroups(groups) {
     `).join('');
 }
 
-function showInviteLink(groupId) {
-    const inviteLink = generateInviteLink(groupId);
-    inviteLinkInput.value = inviteLink;
-    copyLinkModal.style.display = 'block';
+async function showInviteLink(groupId) {
+    try {
+        // Get the group details to show the party name
+        const result = await getGroup(groupId);
+        
+        if (result.success) {
+            const group = result.data;
+            const inviteLink = generateInviteLink(groupId);
+            inviteLinkInput.value = inviteLink;
+            
+            // Update the modal header with party name
+            const inviteMessage = document.querySelector('.invite-message');
+            if (inviteMessage) {
+                inviteMessage.textContent = `Join "${group.name}" and begin your adventure!`;
+            }
+            
+            copyLinkModal.style.display = 'block';
+        } else {
+            // Fallback if we can't get group details
+            const inviteLink = generateInviteLink(groupId);
+            inviteLinkInput.value = inviteLink;
+            copyLinkModal.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error showing invite link:', error);
+        // Fallback if there's an error
+        const inviteLink = generateInviteLink(groupId);
+        inviteLinkInput.value = inviteLink;
+        copyLinkModal.style.display = 'block';
+    }
 }
 
 async function viewGroupDetails(groupId) {
