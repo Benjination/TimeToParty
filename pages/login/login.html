@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Time to Party</title>
+    <link rel="stylesheet" href="../../shared/css/base.css">
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Time to Party</h1>
+            <p>Join your fellow adventurers</p>
+            <img src="../../Images/DungeonMaster.png" alt="Dungeon Master" class="header-image">
+        </div>
+        
+        <div class="auth-form">
+            <h2>Login to Your Adventure</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <input type="email" id="login-email" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="login-password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn-primary">Enter the Tavern</button>
+            </form>
+            
+            <div class="auth-links">
+                <a href="#" id="forgot-password-link">Forgot your scroll of power?</a>
+                <p>New adventurer? <a href="../signup/signup.html">Create your character</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-password-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Recover Your Scroll</h2>
+            <form id="forgot-password-form">
+                <div class="input-group">
+                    <input type="email" id="forgot-email" placeholder="Enter your email" required>
+                </div>
+                <button type="submit" class="btn-primary">Send Recovery Scroll</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="login.js"></script>
+</body>
+</html>

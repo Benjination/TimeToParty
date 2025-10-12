@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Time to Party</title>
+    <link rel="stylesheet" href="../../shared/css/base.css">
+    <link rel="stylesheet" href="signup.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Create Your Character</h1>
+            <p>Begin your legendary journey</p>
+            <div class="character-gallery">
+                <img src="../../Images/BarbarianFemale.png" alt="Barbarian Female" class="character-img">
+                <img src="../../Images/BarbarianMale.png" alt="Barbarian Male" class="character-img">
+                <img src="../../Images/Bard.png" alt="Bard" class="character-img">
+                <img src="../../Images/Monk.png" alt="Monk" class="character-img">
+            </div>
+        </div>
+        
+        <div class="auth-form">
+            <h2>Join the Party</h2>
+            <form id="signup-form">
+                <div class="input-group">
+                    <input type="email" id="signup-email" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="signup-password" placeholder="Password (min 6 characters)" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="confirm-password" placeholder="Confirm Password" required>
+                </div>
+                <button type="submit" class="btn-primary">Begin Adventure</button>
+            </form>
+            
+            <div class="auth-links">
+                <p>Already have a character? <a href="../login/login.html">Enter the tavern</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="signup.js"></script>
+</body>
+</html>

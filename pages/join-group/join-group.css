@@ -1,0 +1,217 @@
+/* Join Group Page Specific Styles */
+.join-flow {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.state-content {
+    background: rgba(139, 69, 19, 0.3);
+    padding: 40px;
+    border-radius: 15px;
+    border: 2px solid #d4af37;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    text-align: center;
+}
+
+.state-content h2 {
+    color: #d4af37;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+}
+
+/* Loading State */
+.loading-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.loading-message p {
+    color: #c9b037;
+    font-size: 1.1rem;
+}
+
+/* Group Preview */
+.group-preview {
+    text-align: left;
+}
+
+.group-preview h2 {
+    text-align: center;
+}
+
+.group-info-card {
+    background: rgba(74, 44, 42, 0.5);
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid #d4af37;
+    margin: 25px 0;
+}
+
+.group-info-card h3 {
+    color: #d4af37;
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+}
+
+.group-info-card p {
+    color: #c9b037;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.group-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.stat-item {
+    background: rgba(212, 175, 55, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-value {
+    color: #d4af37;
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: block;
+}
+
+.stat-label {
+    color: #c9b037;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+/* Actions */
+.join-actions,
+.error-actions,
+.success-actions,
+.login-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.join-actions .btn-primary,
+.error-actions .btn-primary,
+.success-actions .btn-primary,
+.login-actions .btn-primary {
+    flex: 2;
+}
+
+.join-actions .btn-secondary,
+.error-actions .btn-secondary,
+.success-actions .btn-secondary,
+.login-actions .btn-secondary {
+    flex: 1;
+}
+
+/* Error State */
+.error-display {
+    text-align: center;
+}
+
+.error-display h2 {
+    color: #dc2626;
+}
+
+.error-display p {
+    color: #c9b037;
+    margin-bottom: 25px;
+    font-size: 1.1rem;
+}
+
+/* Success State */
+.success-display {
+    text-align: center;
+}
+
+.success-display h2 {
+    color: #22c55e;
+}
+
+.success-display p {
+    color: #c9b037;
+    margin-bottom: 25px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* Not Logged In State */
+.login-prompt {
+    text-align: center;
+}
+
+.login-prompt p {
+    color: #c9b037;
+    margin-bottom: 25px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* Character Gallery */
+.character-gallery {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin: 25px 0;
+}
+
+.character-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #d4af37;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.character-img:hover {
+    transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .state-content {
+        padding: 25px;
+    }
+    
+    .join-actions,
+    .error-actions,
+    .success-actions,
+    .login-actions {
+        flex-direction: column;
+    }
+    
+    .join-actions .btn-primary,
+    .join-actions .btn-secondary,
+    .error-actions .btn-primary,
+    .error-actions .btn-secondary,
+    .success-actions .btn-primary,
+    .success-actions .btn-secondary,
+    .login-actions .btn-primary,
+    .login-actions .btn-secondary {
+        flex: none;
+    }
+    
+    .character-gallery {
+        gap: 10px;
+    }
+    
+    .character-img {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .group-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+}

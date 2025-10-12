@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groups - Time to Party</title>
+    <link rel="stylesheet" href="../../shared/css/base.css">
+    <link rel="stylesheet" href="groups.css">
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <h1>Manage Your Parties</h1>
+            <div class="header-actions">
+                <a href="../dashboard/dashboard.html" class="btn-secondary">Back to Tavern</a>
+                <button id="logout-btn" class="btn-secondary">Leave Tavern</button>
+            </div>
+        </header>
+        
+        <div class="groups-content">
+            <!-- Create Group Section -->
+            <div class="create-group-section">
+                <h2>Start a New Adventure</h2>
+                <div class="create-group-form">
+                    <form id="create-group-form">
+                        <div class="input-group">
+                            <label for="group-name">Party Name</label>
+                            <input type="text" id="group-name" placeholder="Enter your party name" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="group-description">Adventure Description</label>
+                            <textarea id="group-description" placeholder="Describe your campaign or adventure..." rows="3"></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label for="max-players">Maximum Players</label>
+                            <select id="max-players" required>
+                                <option value="3">3 Players</option>
+                                <option value="4">4 Players</option>
+                                <option value="5" selected>5 Players</option>
+                                <option value="6">6 Players</option>
+                                <option value="8">8 Players</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary">Create Party</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Join Group Section -->
+            <div class="join-group-section">
+                <h2>Join an Existing Party</h2>
+                <div class="join-group-form">
+                    <form id="join-group-form">
+                        <div class="input-group">
+                            <label for="group-id">Party ID</label>
+                            <input type="text" id="group-id" placeholder="Enter 6-digit party ID" maxlength="6" required>
+                        </div>
+                        <button type="submit" class="btn-primary">Join Party</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- User's Groups -->
+            <div class="user-groups-section">
+                <h2>Your Current Parties</h2>
+                <div id="groups-list" class="groups-list">
+                    <div class="loading-message">Loading your parties...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Group Details Modal -->
+    <div id="group-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="group-details">
+                <!-- Group details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Copy Link Modal -->
+    <div id="copy-link-modal" class="modal">
+        <div class="modal-content">
+            <span class="close copy-link-close">&times;</span>
+            <h2>Share Your Party</h2>
+            <div class="invite-link-container">
+                <label for="invite-link">Share this link with your friends:</label>
+                <div class="link-input-group">
+                    <input type="text" id="invite-link" readonly>
+                    <button id="copy-link-btn" class="btn-primary">Copy Link</button>
+                </div>
+                <p class="link-instructions">Friends can use this link to join your party automatically!</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="groups.js"></script>
+</body>
+</html>

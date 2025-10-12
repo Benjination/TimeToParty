@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Party - Time to Party</title>
+    <link rel="stylesheet" href="../../shared/css/base.css">
+    <link rel="stylesheet" href="join-group.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Join the Adventure</h1>
+            <p>You've been invited to join a party!</p>
+            <img src="../../Images/DungeonMaster.png" alt="Dungeon Master" class="header-image">
+        </div>
+        
+        <div id="join-flow" class="join-flow">
+            <!-- Loading State -->
+            <div id="loading-state" class="state-content">
+                <div class="loading-message">
+                    <div class="loading"></div>
+                    <p>Checking party details...</p>
+                </div>
+            </div>
+            
+            <!-- Group Info Display -->
+            <div id="group-info-state" class="state-content" style="display: none;">
+                <div class="group-preview">
+                    <h2>Party Details</h2>
+                    <div id="group-info-display">
+                        <!-- Group info will be populated here -->
+                    </div>
+                    <div class="join-actions">
+                        <button id="join-party-btn" class="btn-primary">Join This Party</button>
+                        <a href="../dashboard/dashboard.html" class="btn-secondary">Maybe Later</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Error State -->
+            <div id="error-state" class="state-content" style="display: none;">
+                <div class="error-display">
+                    <h2>Adventure Not Found</h2>
+                    <p id="error-message">This party invitation is no longer valid.</p>
+                    <div class="error-actions">
+                        <a href="../groups/groups.html" class="btn-primary">Find Other Parties</a>
+                        <a href="../dashboard/dashboard.html" class="btn-secondary">Back to Tavern</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Success State -->
+            <div id="success-state" class="state-content" style="display: none;">
+                <div class="success-display">
+                    <h2>Welcome to the Party!</h2>
+                    <p>You've successfully joined the adventure. Your new party members are now your friends!</p>
+                    <div class="success-actions">
+                        <a href="../groups/groups.html" class="btn-primary">View Your Parties</a>
+                        <a href="../dashboard/dashboard.html" class="btn-secondary">Back to Tavern</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Not Logged In State -->
+            <div id="not-logged-in-state" class="state-content" style="display: none;">
+                <div class="login-prompt">
+                    <h2>Create Your Character</h2>
+                    <p>You need an account to join this party. Create your character and begin your adventure!</p>
+                    <div class="character-gallery">
+                        <img src="../../Images/BarbarianFemale.png" alt="Barbarian Female" class="character-img">
+                        <img src="../../Images/Bard.png" alt="Bard" class="character-img">
+                        <img src="../../Images/Monk.png" alt="Monk" class="character-img">
+                        <img src="../../Images/Warlock.png" alt="Warlock" class="character-img">
+                    </div>
+                    <div class="login-actions">
+                        <a href="../signup/signup.html" class="btn-primary">Create Account</a>
+                        <a href="../login/login.html" class="btn-secondary">I Have an Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="join-group.js"></script>
+</body>
+</html>

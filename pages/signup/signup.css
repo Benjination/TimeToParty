@@ -1,0 +1,54 @@
+/* Signup Page Specific Styles */
+.auth-form {
+    background: rgba(139, 69, 19, 0.3);
+    padding: 40px;
+    border-radius: 15px;
+    border: 2px solid #d4af37;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+}
+
+.auth-form h2 {
+    text-align: center;
+    color: #d4af37;
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+}
+
+/* Character Gallery */
+.character-gallery {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.character-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #d4af37;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.character-img:hover {
+    transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .auth-form {
+        padding: 25px;
+    }
+    
+    .character-gallery {
+        gap: 10px;
+    }
+    
+    .character-img {
+        width: 60px;
+        height: 60px;
+    }
+}

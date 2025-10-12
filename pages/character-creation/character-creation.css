@@ -1,0 +1,80 @@
+/* Character Creation Page Specific Styles */
+.character-creation-form {
+    background: rgba(139, 69, 19, 0.3);
+    padding: 40px;
+    border-radius: 15px;
+    border: 2px solid #d4af37;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+}
+
+.character-creation-form h2 {
+    text-align: center;
+    color: #d4af37;
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+}
+
+.character-preview {
+    background: rgba(74, 44, 42, 0.5);
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid #d4af37;
+    margin: 25px 0;
+    text-align: center;
+}
+
+.character-preview h3 {
+    color: #d4af37;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+}
+
+#character-image-preview {
+    margin-bottom: 15px;
+}
+
+#preview-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid #d4af37;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+#character-description {
+    color: #c9b037;
+    font-style: italic;
+    line-height: 1.5;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.form-actions .btn-secondary {
+    flex: 1;
+}
+
+.form-actions .btn-primary {
+    flex: 2;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .character-creation-form {
+        padding: 25px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions .btn-secondary,
+    .form-actions .btn-primary {
+        flex: none;
+    }
+}

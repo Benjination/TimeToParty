@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Time to Party</title>
+    <link rel="stylesheet" href="../../shared/css/base.css">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <header class="dashboard-header">
+            <h1>Welcome to the Tavern</h1>
+            <div class="user-info">
+                <span id="user-email"></span>
+                <button id="logout-btn" class="btn-secondary">Leave Tavern</button>
+            </div>
+        </header>
+        
+        <div class="dashboard-content">
+            <div class="party-section">
+                <h2>Your Party Awaits</h2>
+                <div class="characters-grid">
+                    <div class="character-card">
+                        <img src="../../Images/Sorceror.png" alt="Sorceror">
+                        <h3>Sorceror</h3>
+                        <p>Master of arcane arts</p>
+                    </div>
+                    <div class="character-card">
+                        <img src="../../Images/Warlock.png" alt="Warlock">
+                        <h3>Warlock</h3>
+                        <p>Bearer of dark pacts</p>
+                    </div>
+                    <div class="character-card">
+                        <img src="../../Images/Dwarf.png" alt="Dwarf">
+                        <h3>Dwarf</h3>
+                        <p>Stalwart defender</p>
+                    </div>
+                    <div class="character-card">
+                        <img src="../../Images/Bard.png" alt="Bard">
+                        <h3>Bard</h3>
+                        <p>Weaver of tales</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="adventure-section">
+                <h2>Ready for Adventure?</h2>
+                <p>Your party is assembled and ready to embark on epic quests!</p>
+                <div class="action-buttons">
+                    <a href="../groups/groups.html" class="btn-primary">Manage Parties</a>
+                    <a href="../character-creation/character-creation.html" class="btn-secondary">Create Character</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="dashboard.js"></script>
+</body>
+</html>

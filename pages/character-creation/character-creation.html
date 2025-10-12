@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Character - Time to Party</title>
+    <link rel="stylesheet" href="../../shared/css/base.css">
+    <link rel="stylesheet" href="character-creation.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Create Your Character</h1>
+            <p>Choose your path and forge your destiny</p>
+            <img src="../../Images/DungeonMaster.png" alt="Dungeon Master" class="header-image">
+        </div>
+        
+        <div class="character-creation-form">
+            <h2>Character Details</h2>
+            <form id="character-form">
+                <div class="input-group">
+                    <label for="character-name">Character Name</label>
+                    <input type="text" id="character-name" placeholder="Enter your character's name" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="character-class">Choose Your Class</label>
+                    <select id="character-class" required>
+                        <option value="">Select a class...</option>
+                        <option value="barbarian">Barbarian - Fierce warrior with primal strength</option>
+                        <option value="bard">Bard - Master of song, speech, and magic</option>
+                        <option value="monk">Monk - Disciplined fighter with inner power</option>
+                        <option value="sorceror">Sorceror - Wielder of innate magical power</option>
+                        <option value="warlock">Warlock - Bearer of otherworldly pacts</option>
+                        <option value="dwarf">Dwarf - Stout-hearted defender of the realm</option>
+                    </select>
+                </div>
+                
+                <div class="character-preview">
+                    <h3>Character Preview</h3>
+                    <div id="character-image-preview">
+                        <img id="preview-image" src="../../Images/DungeonMaster.png" alt="Character Preview">
+                    </div>
+                    <div id="character-description">
+                        <p>Select a class to see your character</p>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="character-backstory">Character Backstory (Optional)</label>
+                    <textarea id="character-backstory" placeholder="Tell us about your character's background and motivations..." rows="4"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="../dashboard/dashboard.html" class="btn-secondary">Back to Tavern</a>
+                    <button type="submit" class="btn-primary">Create Character</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="character-creation.js"></script>
+</body>
+</html>
