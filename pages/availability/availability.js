@@ -1,322 +1,343 @@
-// Availability Scheduler JavaScript
+// Availability Page JavaScript
 import { signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { doc, setDoc, getDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { doc, setDoc, getDoc, collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { auth, db } from '../../shared/js/firebase-config.js';
-import { showError, showSuccess } from '../../shared/js/utils.js';
-import { getUserGroups } from '../../shared/js/database.js';
+import { showError, showSuccess, addLoadingState, removeLoadingState } from '../../shared/js/utils.js';
+import { getUserGroups, getUsersByIds } from '../../shared/js/database.js';
 
 // DOM Elements
 const logoutBtn = document.getElementById('logout-btn');
-const prevDayBtn = document.getElementById('prev-day');
-const nextDayBtn = document.getElementById('next-day');
-const currentDateDisplay = document.getElementById('current-date-display');
-const currentDayName = document.getElementById('current-day-name');
-const timeGrid = document.getElementById('time-grid');
-const timeLabels = document.querySelector('.time-labels');
-const clearDayBtn = document.getElementById('clear-day');
+const prevWeekBtn = document.getElementById('prev-week');
+const nextWeekBtn = document.getElementById('next-week');
+const currentWeekDisplay = document.getElementById('current-week-display');
+const scheduleGridContent = document.getElementById('schedule-grid-content');
+const clearWeekBtn = document.getElementById('clear-week');
 const saveAvailabilityBtn = document.getElementById('save-availability');
-const partySelect = document.getElementById('party-select');
-const partyAvailabilityGrid = document.getElementById('party-availability-grid');
+const partyAvailabilityList = document.getElementById('party-availability-list');
 
-// State
 let currentUser = null;
-let currentDate = new Date();
-let availability = {}; // Format: { "2025-10-12": { 0: "available", 1: "unavailable", ... } }
-let userGroups = [];
+let currentWeekStart = null;
+let weeklyAvailability = {};
 
-// Initialize time slots (24 hours)
-const timeSlots = Array.from({ length: 24 }, (_, i) => i);
-
-// Availability states
-const AVAILABILITY_STATES = {
-    NEUTRAL: 'neutral',
-    AVAILABLE: 'available',
-    UNAVAILABLE: 'unavailable'
-};
-
-// Initialize the page
-function initializePage() {
-    createTimeLabels();
-    createTimeGrid();
-    updateDateDisplay();
-    loadUserAvailability();
+// Time slots (48 half-hour slots per day)
+const timeSlots = [];
+for (let hour = 0; hour < 24; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+        const time = new Date();
+        time.setHours(hour, minute, 0, 0);
+        timeSlots.push({
+            hour,
+            minute,
+            display: time.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit', 
+                hour12: true 
+            })
+        });
+    }
 }
 
-// Create time labels (12 AM, 1 AM, etc.)
-function createTimeLabels() {
-    timeLabels.innerHTML = timeSlots.map(hour => {
-        const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-        const ampm = hour < 12 ? 'AM' : 'PM';
-        return `<div class="time-label">${displayHour}${ampm}</div>`;
-    }).join('');
+// Days of the week
+const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const dayAbbreviations = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// Initialize week to current week
+function initializeWeek() {
+    const today = new Date();
+    // Get the start of the current week (Sunday)
+    const dayOfWeek = today.getDay();
+    currentWeekStart = new Date(today);
+    currentWeekStart.setDate(today.getDate() - dayOfWeek);
+    currentWeekStart.setHours(0, 0, 0, 0);
+    
+    updateWeekDisplay();
+    generateScheduleGrid();
+    loadWeeklyAvailability();
 }
 
-// Create the interactive time grid
-function createTimeGrid() {
-    const dateKey = formatDateKey(currentDate);
-    const dayAvailability = availability[dateKey] || {};
+// Update week display
+function updateWeekDisplay() {
+    const endOfWeek = new Date(currentWeekStart);
+    endOfWeek.setDate(currentWeekStart.getDate() + 6);
     
-    timeGrid.innerHTML = '';
-    
-    // Add hour labels and time slots for each hour
-    timeSlots.forEach(hour => {
-        // Add hour label
-        const hourLabel = document.createElement('div');
-        hourLabel.className = 'hour-label';
-        const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-        const ampm = hour < 12 ? 'AM' : 'PM';
-        hourLabel.textContent = `${displayHour}:00 ${ampm}`;
-        timeGrid.appendChild(hourLabel);
-        
-        // Add time slot
-        const timeSlot = document.createElement('div');
-        timeSlot.className = `time-slot ${dayAvailability[hour] || AVAILABILITY_STATES.NEUTRAL}`;
-        timeSlot.dataset.hour = hour;
-        timeSlot.addEventListener('click', () => toggleTimeSlot(hour));
-        timeGrid.appendChild(timeSlot);
+    const startStr = currentWeekStart.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
     });
+    const endStr = endOfWeek.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+    });
+    
+    currentWeekDisplay.textContent = `${startStr} - ${endStr}`;
+}
+
+// Generate the weekly schedule grid
+function generateScheduleGrid() {
+    let gridHTML = '';
+    
+    // Generate time slots and corresponding day slots
+    timeSlots.forEach((timeSlot, timeIndex) => {
+        // Time label
+        gridHTML += `<div class="time-label">${timeSlot.display}</div>`;
+        
+        // Day slots for this time
+        for (let day = 0; day < 7; day++) {
+            const slotId = `${day}-${timeIndex}`;
+            gridHTML += `
+                <div class="time-slot" 
+                     data-day="${day}" 
+                     data-time="${timeIndex}" 
+                     onclick="toggleTimeSlot(${day}, ${timeIndex})"
+                     oncontextmenu="setUnavailable(event, ${day}, ${timeIndex})"
+                     ondblclick="setPreferred(${day}, ${timeIndex})">
+                </div>
+            `;
+        }
+    });
+    
+    scheduleGridContent.innerHTML = gridHTML;
 }
 
 // Toggle time slot availability
-function toggleTimeSlot(hour) {
-    const dateKey = formatDateKey(currentDate);
-    if (!availability[dateKey]) {
-        availability[dateKey] = {};
+function toggleTimeSlot(day, timeIndex) {
+    const slotKey = `${day}-${timeIndex}`;
+    const currentState = weeklyAvailability[slotKey] || 'none';
+    
+    // Cycle through states: none -> available -> none
+    if (currentState === 'none') {
+        weeklyAvailability[slotKey] = 'available';
+    } else if (currentState === 'available') {
+        weeklyAvailability[slotKey] = 'none';
+    } else if (currentState === 'preferred') {
+        weeklyAvailability[slotKey] = 'available';
+    } else if (currentState === 'unavailable') {
+        weeklyAvailability[slotKey] = 'available';
     }
     
-    const currentState = availability[dateKey][hour] || AVAILABILITY_STATES.NEUTRAL;
-    let newState;
+    updateSlotVisual(day, timeIndex);
+}
+
+// Set preferred time (double-click)
+function setPreferred(day, timeIndex) {
+    const slotKey = `${day}-${timeIndex}`;
+    weeklyAvailability[slotKey] = 'preferred';
+    updateSlotVisual(day, timeIndex);
+}
+
+// Set unavailable (right-click)
+function setUnavailable(event, day, timeIndex) {
+    event.preventDefault();
+    const slotKey = `${day}-${timeIndex}`;
+    weeklyAvailability[slotKey] = 'unavailable';
+    updateSlotVisual(day, timeIndex);
+}
+
+// Update slot visual appearance
+function updateSlotVisual(day, timeIndex) {
+    const slot = document.querySelector(`[data-day="${day}"][data-time="${timeIndex}"]`);
+    const slotKey = `${day}-${timeIndex}`;
+    const state = weeklyAvailability[slotKey] || 'none';
     
-    // Cycle through states: neutral -> available -> unavailable -> neutral
-    switch (currentState) {
-        case AVAILABILITY_STATES.NEUTRAL:
-            newState = AVAILABILITY_STATES.AVAILABLE;
-            break;
-        case AVAILABILITY_STATES.AVAILABLE:
-            newState = AVAILABILITY_STATES.UNAVAILABLE;
-            break;
-        case AVAILABILITY_STATES.UNAVAILABLE:
-            newState = AVAILABILITY_STATES.NEUTRAL;
-            break;
-        default:
-            newState = AVAILABILITY_STATES.AVAILABLE;
+    // Remove all state classes
+    slot.classList.remove('available', 'preferred', 'unavailable');
+    
+    // Add appropriate class
+    if (state !== 'none') {
+        slot.classList.add(state);
     }
-    
-    availability[dateKey][hour] = newState;
-    
-    // Update the visual state
-    const timeSlot = timeGrid.querySelector(`[data-hour="${hour}"]`);
-    if (timeSlot) {
-        timeSlot.className = `time-slot ${newState}`;
+}
+
+// Clear entire week
+function clearWeek() {
+    if (confirm('Are you sure you want to clear all availability for this week?')) {
+        weeklyAvailability = {};
+        
+        // Update all slots
+        for (let day = 0; day < 7; day++) {
+            for (let timeIndex = 0; timeIndex < timeSlots.length; timeIndex++) {
+                updateSlotVisual(day, timeIndex);
+            }
+        }
     }
 }
 
-// Date navigation functions
-function goToPreviousDay() {
-    currentDate.setDate(currentDate.getDate() - 1);
-    updateDateDisplay();
-    createTimeGrid();
-}
-
-function goToNextDay() {
-    currentDate.setDate(currentDate.getDate() + 1);
-    updateDateDisplay();
-    createTimeGrid();
-}
-
-function updateDateDisplay() {
-    const options = { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-    };
-    
-    currentDateDisplay.textContent = currentDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long', 
-        day: 'numeric'
-    });
-    
-    currentDayName.textContent = currentDate.toLocaleDateString('en-US', {
-        weekday: 'long'
-    });
-}
-
-// Clear all availability for current day
-function clearCurrentDay() {
-    const dateKey = formatDateKey(currentDate);
-    if (availability[dateKey]) {
-        delete availability[dateKey];
-    }
-    createTimeGrid();
-}
-
-// Save availability to Firebase
+// Save availability to Firestore
 async function saveAvailability() {
     if (!currentUser) return;
     
     try {
-        const userAvailabilityRef = doc(db, 'availability', currentUser.uid);
-        await setDoc(userAvailabilityRef, {
+        addLoadingState(saveAvailabilityBtn);
+        
+        // Create availability document for this week
+        const weekId = currentWeekStart.toISOString().split('T')[0]; // YYYY-MM-DD format
+        const availabilityRef = doc(db, 'availability', `${currentUser.uid}_${weekId}`);
+        
+        await setDoc(availabilityRef, {
             userId: currentUser.uid,
-            availability: availability,
+            weekStart: currentWeekStart,
+            availability: weeklyAvailability,
             lastUpdated: new Date()
-        }, { merge: true });
+        });
         
-        // Show success message
-        const successDiv = document.createElement('div');
-        successDiv.className = 'save-success';
-        successDiv.textContent = 'Availability saved successfully!';
-        saveAvailabilityBtn.parentNode.insertBefore(successDiv, saveAvailabilityBtn.nextSibling);
-        
-        setTimeout(() => {
-            if (successDiv.parentNode) {
-                successDiv.remove();
-            }
-        }, 3000);
+        showSuccess('Availability saved successfully!');
+        loadPartyAvailability();
         
     } catch (error) {
         console.error('Error saving availability:', error);
-        showError('Failed to save availability. Please try again.', document.querySelector('.availability-actions'));
+        showError('Failed to save availability. Please try again.');
+    } finally {
+        removeLoadingState(saveAvailabilityBtn, 'Save Availability');
     }
 }
 
-// Load user's availability from Firebase
-async function loadUserAvailability() {
+// Load weekly availability from Firestore
+async function loadWeeklyAvailability() {
     if (!currentUser) return;
     
     try {
-        const userAvailabilityRef = doc(db, 'availability', currentUser.uid);
-        const availabilitySnap = await getDoc(userAvailabilityRef);
+        const weekId = currentWeekStart.toISOString().split('T')[0];
+        const availabilityRef = doc(db, 'availability', `${currentUser.uid}_${weekId}`);
+        const availabilitySnap = await getDoc(availabilityRef);
         
         if (availabilitySnap.exists()) {
-            const data = availabilitySnap.data();
-            availability = data.availability || {};
+            weeklyAvailability = availabilitySnap.data().availability || {};
         } else {
-            availability = {};
+            weeklyAvailability = {};
         }
         
-        createTimeGrid();
-    } catch (error) {
-        console.error('Error loading availability:', error);
-        availability = {};
-        createTimeGrid();
-    }
-}
-
-// Load user's groups for party availability view
-async function loadUserGroups() {
-    if (!currentUser) return;
-    
-    try {
-        const result = await getUserGroups(currentUser.uid);
-        
-        if (result.success) {
-            userGroups = result.data;
-            populatePartySelect();
-        } else {
-            userGroups = [];
-            partySelect.innerHTML = '<option value="">No parties found</option>';
-        }
-    } catch (error) {
-        console.error('Error loading user groups:', error);
-        userGroups = [];
-    }
-}
-
-// Populate party selector dropdown
-function populatePartySelect() {
-    partySelect.innerHTML = '<option value="">Select a party...</option>';
-    
-    userGroups.forEach(group => {
-        const option = document.createElement('option');
-        option.value = group.groupId;
-        option.textContent = `${group.name} (${group.members.length} members)`;
-        partySelect.appendChild(option);
-    });
-}
-
-// Load and display party availability
-async function loadPartyAvailability(groupId) {
-    if (!groupId) {
-        partyAvailabilityGrid.innerHTML = '<p class="no-party-selected">Select a party to see everyone\'s availability</p>';
-        return;
-    }
-    
-    partyAvailabilityGrid.innerHTML = '<div class="loading-availability">Loading party availability...</div>';
-    
-    try {
-        // Find the selected group
-        const selectedGroup = userGroups.find(group => group.groupId === groupId);
-        if (!selectedGroup) return;
-        
-        // Load availability for all members
-        const memberAvailabilities = {};
-        
-        for (const memberId of selectedGroup.members) {
-            try {
-                const memberAvailabilityRef = doc(db, 'availability', memberId);
-                const availabilitySnap = await getDoc(memberAvailabilityRef);
-                
-                if (availabilitySnap.exists()) {
-                    memberAvailabilities[memberId] = availabilitySnap.data().availability || {};
-                } else {
-                    memberAvailabilities[memberId] = {};
-                }
-            } catch (error) {
-                console.error(`Error loading availability for ${memberId}:`, error);
-                memberAvailabilities[memberId] = {};
+        // Update all slot visuals
+        for (let day = 0; day < 7; day++) {
+            for (let timeIndex = 0; timeIndex < timeSlots.length; timeIndex++) {
+                updateSlotVisual(day, timeIndex);
             }
         }
         
-        displayPartyAvailability(selectedGroup, memberAvailabilities);
-        
     } catch (error) {
-        console.error('Error loading party availability:', error);
-        partyAvailabilityGrid.innerHTML = '<p class="loading-availability">Failed to load party availability</p>';
+        console.error('Error loading availability:', error);
+        weeklyAvailability = {};
     }
 }
 
-// Display party availability grid
-function displayPartyAvailability(group, memberAvailabilities) {
-    const dateKey = formatDateKey(currentDate);
+// Load party availability overview
+async function loadPartyAvailability() {
+    if (!currentUser) return;
     
-    let html = `
-        <div class="party-grid-header">
-            <div class="party-member-row">
-                <div class="member-name">Member</div>
-                ${timeSlots.map(hour => {
-                    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-                    const ampm = hour < 12 ? 'AM' : 'PM';
-                    return `<div class="member-time-slot" style="background: none; border: none; color: #d4af37; font-size: 0.7rem; text-align: center;">${displayHour}</div>`;
-                }).join('')}
-            </div>
-        </div>
-    `;
-    
-    group.members.forEach(memberId => {
-        const memberAvailability = memberAvailabilities[memberId][dateKey] || {};
-        const displayName = memberId === currentUser.uid ? 'You' : `User ${memberId.substring(0, 6)}`;
+    try {
+        const groupsResult = await getUserGroups(currentUser.uid);
         
-        html += `
-            <div class="party-member-row">
-                <div class="member-name">${displayName}</div>
-                ${timeSlots.map(hour => {
-                    const state = memberAvailability[hour] || AVAILABILITY_STATES.NEUTRAL;
-                    return `<div class="member-time-slot ${state}"></div>`;
-                }).join('')}
-            </div>
-        `;
-    });
-    
-    partyAvailabilityGrid.innerHTML = html;
+        if (groupsResult.success && groupsResult.data.length > 0) {
+            const partyData = [];
+            
+            for (const group of groupsResult.data) {
+                // Get all member availability for this week
+                const weekId = currentWeekStart.toISOString().split('T')[0];
+                const memberAvailability = {};
+                
+                for (const memberId of group.members) {
+                    try {
+                        const memberAvailRef = doc(db, 'availability', `${memberId}_${weekId}`);
+                        const memberAvailSnap = await getDoc(memberAvailRef);
+                        if (memberAvailSnap.exists()) {
+                            memberAvailability[memberId] = memberAvailSnap.data().availability || {};
+                        }
+                    } catch (error) {
+                        console.error(`Error loading availability for member ${memberId}:`, error);
+                    }
+                }
+                
+                partyData.push({
+                    group,
+                    memberAvailability
+                });
+            }
+            
+            displayPartyAvailability(partyData);
+        } else {
+            partyAvailabilityList.innerHTML = '<div class="no-parties-message">You are not in any parties yet.</div>';
+        }
+    } catch (error) {
+        console.error('Error loading party availability:', error);
+        partyAvailabilityList.innerHTML = '<div class="no-parties-message">Failed to load party availability.</div>';
+    }
 }
 
-// Utility functions
-function formatDateKey(date) {
-    return date.toISOString().split('T')[0]; // Format: "2025-10-12"
+// Display party availability summary
+function displayPartyAvailability(partyData) {
+    if (partyData.length === 0) {
+        partyAvailabilityList.innerHTML = '<div class="no-parties-message">No parties found.</div>';
+        return;
+    }
+    
+    const partiesHTML = partyData.map(({ group, memberAvailability }) => {
+        const daysSummary = daysOfWeek.map((dayName, dayIndex) => {
+            const availableSlots = [];
+            
+            // Check each time slot for this day
+            timeSlots.forEach((timeSlot, timeIndex) => {
+                let availableMembers = 0;
+                let totalMembers = 0;
+                
+                Object.values(memberAvailability).forEach(availability => {
+                    totalMembers++;
+                    const slotKey = `${dayIndex}-${timeIndex}`;
+                    const state = availability[slotKey];
+                    if (state === 'available' || state === 'preferred') {
+                        availableMembers++;
+                    }
+                });
+                
+                if (availableMembers >= Math.ceil(totalMembers * 0.5)) { // 50% or more available
+                    availableSlots.push(timeSlot.display);
+                }
+            });
+            
+            return `
+                <div class="day-summary">
+                    <h5>${dayName.slice(0, 3)}</h5>
+                    <div class="available-times">
+                        ${availableSlots.length > 0 ? 
+                            availableSlots.slice(0, 3).join('<br>') + 
+                            (availableSlots.length > 3 ? `<br>+${availableSlots.length - 3} more` : '') 
+                            : 'No overlap'}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        return `
+            <div class="party-card">
+                <h4>${group.name} (${group.members.length} members)</h4>
+                <div class="availability-summary">
+                    ${daysSummary}
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    partyAvailabilityList.innerHTML = partiesHTML;
 }
+
+// Navigation functions
+function goToPreviousWeek() {
+    currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+    updateWeekDisplay();
+    loadWeeklyAvailability();
+    loadPartyAvailability();
+}
+
+function goToNextWeek() {
+    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+    updateWeekDisplay();
+    loadWeeklyAvailability();
+    loadPartyAvailability();
+}
+
+// Make functions global for onclick handlers
+window.toggleTimeSlot = toggleTimeSlot;
+window.setPreferred = setPreferred;
+window.setUnavailable = setUnavailable;
 
 // Authentication
 async function handleLogout() {
@@ -337,43 +358,17 @@ document.addEventListener('DOMContentLoaded', function() {
             currentUser = user;
             console.log('User is signed in:', user);
             
-            // Ensure user profile exists
-            try {
-                await setDoc(doc(db, 'users', user.uid), {
-                    email: user.email,
-                    lastLogin: new Date()
-                }, { merge: true });
-            } catch (error) {
-                console.error('Error updating user profile:', error);
-            }
-            
-            initializePage();
-            loadUserGroups();
+            initializeWeek();
+            loadPartyAvailability();
         } else {
             window.location.href = '../login/login.html';
         }
     });
     
-    // Navigation event listeners
-    prevDayBtn?.addEventListener('click', goToPreviousDay);
-    nextDayBtn?.addEventListener('click', goToNextDay);
-    clearDayBtn?.addEventListener('click', clearCurrentDay);
-    saveAvailabilityBtn?.addEventListener('click', saveAvailability);
+    // Button event listeners
     logoutBtn?.addEventListener('click', handleLogout);
-    
-    // Party selection
-    partySelect?.addEventListener('change', (e) => {
-        loadPartyAvailability(e.target.value);
-    });
-    
-    // Keyboard navigation
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            goToPreviousDay();
-        } else if (e.key === 'ArrowRight') {
-            e.preventDefault();
-            goToNextDay();
-        }
-    });
+    prevWeekBtn?.addEventListener('click', goToPreviousWeek);
+    nextWeekBtn?.addEventListener('click', goToNextWeek);
+    clearWeekBtn?.addEventListener('click', clearWeek);
+    saveAvailabilityBtn?.addEventListener('click', saveAvailability);
 });

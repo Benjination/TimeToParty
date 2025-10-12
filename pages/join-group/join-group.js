@@ -18,6 +18,50 @@ let currentUser = null;
 let groupId = null;
 let groupData = null;
 
+// Update meta tags for social media sharing
+function updateMetaTags(groupData) {
+    const title = `🎲 Join "${groupData.name}" - Time to Party`;
+    const description = `You've been invited to join "${groupData.name}"! ${groupData.description || 'The Dungeon Master awaits your arrival.'}`;
+    const currentUrl = window.location.href;
+    
+    // Update document title
+    document.title = title;
+    
+    // Update or create meta tags
+    const metaTags = [
+        { property: 'og:title', content: title },
+        { property: 'og:description', content: description },
+        { property: 'og:url', content: currentUrl },
+        { property: 'twitter:title', content: title },
+        { property: 'twitter:description', content: description },
+        { property: 'twitter:url', content: currentUrl },
+        { name: 'description', content: description }
+    ];
+    
+    metaTags.forEach(tag => {
+        let element;
+        if (tag.property) {
+            element = document.querySelector(`meta[property="${tag.property}"]`);
+        } else if (tag.name) {
+            element = document.querySelector(`meta[name="${tag.name}"]`);
+        }
+        
+        if (element) {
+            element.setAttribute('content', tag.content);
+        } else {
+            // Create new meta tag if it doesn't exist
+            const newTag = document.createElement('meta');
+            if (tag.property) {
+                newTag.setAttribute('property', tag.property);
+            } else if (tag.name) {
+                newTag.setAttribute('name', tag.name);
+            }
+            newTag.setAttribute('content', tag.content);
+            document.head.appendChild(newTag);
+        }
+    });
+}
+
 // Get group ID from URL parameters
 function getGroupIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -42,6 +86,7 @@ async function loadGroupInfo(groupId) {
         
         if (result.success) {
             groupData = result.data;
+            updateMetaTags(groupData); // Update meta tags for social sharing
             displayGroupInfo(groupData);
             showState(groupInfoState);
         } else {
