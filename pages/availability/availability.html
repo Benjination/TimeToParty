@@ -1,7 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
+<html lang=            <!-- Legend -->
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color available"></div>
+                    <span>Available Time (Click)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color preferred"></div>
+                    <span>Preferred Time</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color unavailable"></div>
+                    <span>Unavailable (Right-click for menu)</span>
+                </div>
+            </div>
+
+            <!-- Context Menu -->
+            <div class="context-menu" id="context-menu">
+                <div class="context-menu-item" data-color="none">
+                    <div class="context-menu-color clear"></div>
+                    <span>Clear</span>
+                </div>
+                <div class="context-menu-item" data-color="available">
+                    <div class="context-menu-color available"></div>
+                    <span>Available</span>
+                </div>
+                <div class="context-menu-item" data-color="preferred">
+                    <div class="context-menu-color preferred"></div>
+                    <span>Preferred</span>
+                </div>
+                <div class="context-menu-item" data-color="unavailable">
+                    <div class="context-menu-color unavailable"></div>
+                    <span>Unavailable</span>
+                </div>
+            </div>  <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Availability Scheduler - Time to Party</title>
     <link rel="stylesheet" href="../../shared/css/base.css">
@@ -12,7 +44,10 @@
         <div class="page-header">
             <h1>📅 Availability Scheduler</h1>
             <p>Set your weekly availability for D&D sessions</p>
-            <button id="logout-btn" class="btn-secondary">Logout</button>
+            <div class="header-buttons">
+                <button id="back-to-tavern-btn" class="btn-primary">← Back to Tavern</button>
+                <button id="logout-btn" class="btn-secondary">Logout</button>
+            </div>
         </div>
 
         <div class="availability-content">
@@ -44,15 +79,15 @@
             <!-- Weekly Schedule Grid -->
             <div class="schedule-container">
                 <div class="schedule-grid">
-                    <!-- Header row with days -->
-                    <div class="time-header"></div>
-                    <div class="day-header">Sun</div>
-                    <div class="day-header">Mon</div>
-                    <div class="day-header">Tue</div>
-                    <div class="day-header">Wed</div>
-                    <div class="day-header">Thu</div>
-                    <div class="day-header">Fri</div>
-                    <div class="day-header">Sat</div>
+                    <!-- Header row -->
+                    <div class="time-header">Time</div>
+                    <div class="day-header">Sunday</div>
+                    <div class="day-header">Monday</div>
+                    <div class="day-header">Tuesday</div>
+                    <div class="day-header">Wednesday</div>
+                    <div class="day-header">Thursday</div>
+                    <div class="day-header">Friday</div>
+                    <div class="day-header">Saturday</div>
                     
                     <!-- Time slots will be generated here -->
                     <div id="schedule-grid-content"></div>

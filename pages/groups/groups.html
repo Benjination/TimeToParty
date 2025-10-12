@@ -119,6 +119,45 @@
         </div>
     </div>
 
+    <!-- Edit Group Modal -->
+    <div id="edit-group-modal" class="modal">
+        <div class="modal-content">
+            <span class="close edit-group-close">&times;</span>
+            <h2>🛠️ Edit Party</h2>
+            <form id="edit-group-form">
+                <div class="input-group">
+                    <label for="edit-group-name">Party Name</label>
+                    <input type="text" id="edit-group-name" required>
+                </div>
+                <div class="input-group">
+                    <label for="edit-group-description">Adventure Description</label>
+                    <textarea id="edit-group-description" rows="3"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="edit-max-players">Maximum Players</label>
+                    <select id="edit-max-players" required>
+                        <option value="3">3 Players</option>
+                        <option value="4">4 Players</option>
+                        <option value="5">5 Players</option>
+                        <option value="6">6 Players</option>
+                        <option value="8">8 Players</option>
+                    </select>
+                </div>
+                
+                <h3>👥 Manage Members</h3>
+                <div id="members-list" class="members-management">
+                    <!-- Members will be populated here -->
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                    <button type="button" id="delete-group-btn" class="btn-danger">Delete Party</button>
+                    <button type="button" class="btn-secondary edit-group-close">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script type="module" src="groups.js"></script>
 </body>
 </html>

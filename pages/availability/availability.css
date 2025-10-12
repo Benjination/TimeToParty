@@ -20,6 +20,12 @@
     font-size: 1.1rem;
 }
 
+.header-buttons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
 /* Week Navigation */
 .week-navigation {
     display: flex;
@@ -88,49 +94,56 @@
 
 .schedule-grid {
     display: grid;
-    grid-template-columns: 80px repeat(7, 1fr);
+    grid-template-columns: 120px repeat(7, 1fr);
     min-width: 800px;
-    gap: 1px;
-    background: #e5e5e5;
+    border: 1px solid #666;
+    user-select: none;
+}
+
+#schedule-grid-content {
+    display: contents;
 }
 
 .time-header {
     background: #8b4513;
-    padding: 15px 5px;
+    padding: 10px 5px;
     font-weight: bold;
     color: #d4af37;
     text-align: center;
     font-size: 0.9rem;
+    border: 1px solid #666;
 }
 
 .day-header {
     background: #8b4513;
     color: #d4af37;
-    padding: 15px 5px;
+    padding: 10px 5px;
     text-align: center;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 0.9rem;
+    border: 1px solid #666;
 }
 
 .time-label {
     background: #f8f9fa;
-    padding: 8px 5px;
-    font-size: 0.8rem;
+    padding: 0 5px;
+    font-size: 0.75rem;
     font-weight: 500;
     color: #666;
     text-align: center;
-    border-right: 2px solid #e5e5e5;
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 20px;
+    border: 1px solid #666;
 }
 
 .time-slot {
     background: #ffffff;
-    min-height: 30px;
+    height: 20px;
     cursor: pointer;
     transition: all 0.2s ease;
-    border: 1px solid transparent;
+    border: 1px solid #666;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -138,7 +151,9 @@
 
 .time-slot:hover {
     border: 2px solid #8b4513;
-    transform: scale(1.05);
+    transform: scale(1.1);
+    z-index: 10;
+    position: relative;
 }
 
 .time-slot.available {
@@ -162,6 +177,64 @@
     justify-content: center;
     gap: 20px;
     margin-bottom: 40px;
+}
+
+/* Context Menu */
+.context-menu {
+    position: fixed;
+    background: white;
+    border: 2px solid #8b4513;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    z-index: 1000;
+    display: none;
+    min-width: 120px;
+}
+
+.context-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.context-menu-item:hover {
+    background: #f0f0f0;
+}
+
+.context-menu-item:first-child {
+    border-radius: 6px 6px 0 0;
+}
+
+.context-menu-item:last-child {
+    border-radius: 0 0 6px 6px;
+}
+
+.context-menu-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 1px solid #666;
+}
+
+.context-menu-color.clear {
+    background: white;
+}
+
+.context-menu-color.available {
+    background: #22c55e;
+}
+
+.context-menu-color.preferred {
+    background: #d4af37;
+}
+
+.context-menu-color.unavailable {
+    background: #ef4444;
 }
 
 /* Party Overview */
@@ -254,7 +327,12 @@
     
     .schedule-grid {
         min-width: 600px;
-        grid-template-columns: 60px repeat(7, 80px);
+        grid-template-columns: 50px repeat(7, 70px);
+    }
+    
+    .time-label {
+        font-size: 0.6rem;
+        padding: 2px 3px;
     }
     
     .action-buttons {

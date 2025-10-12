@@ -3,6 +3,9 @@ import { signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/
 import { 
     doc, 
     setDoc, 
+    getDoc,
+    updateDoc,
+    deleteDoc,
     collection, 
     addDoc, 
     query, 
@@ -33,6 +36,12 @@ const copyLinkModal = document.getElementById('copy-link-modal');
 const closeModals = document.querySelectorAll('.close');
 const copyLinkBtn = document.getElementById('copy-link-btn');
 const inviteLinkInput = document.getElementById('invite-link');
+
+// Edit Group Elements
+const editGroupModal = document.getElementById('edit-group-modal');
+const editGroupForm = document.getElementById('edit-group-form');
+const deleteGroupBtn = document.getElementById('delete-group-btn');
+const membersList = document.getElementById('members-list');
 
 // Chat Elements
 const partyChatSection = document.getElementById('party-chat-section');
@@ -120,7 +129,9 @@ function displayGroups(groups) {
         return;
     }
     
-    groupsList.innerHTML = groups.map(group => `
+    groupsList.innerHTML = groups.map(group => {
+        const isHost = group.hostId === currentUser.uid;
+        return `
         <div class="group-card">
             <h3>${group.name}</h3>
             <p>${group.description || 'No description provided'}</p>
@@ -132,9 +143,10 @@ function displayGroups(groups) {
                 <button class="btn-secondary" onclick="viewGroupDetails('${group.groupId}')">View Details</button>
                 <button class="btn-primary" onclick="openPartyChat('${group.groupId}', '${group.name}')">Party Chat</button>
                 <button class="btn-primary" onclick="showInviteLink('${group.groupId}')">Share Link</button>
+                ${isHost ? `<button class="btn-secondary" onclick="editGroup('${group.groupId}')">Edit Group</button>` : ''}
             </div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 }
 
 async function showInviteLink(groupId) {
@@ -318,6 +330,163 @@ function escapeHtml(text) {
 window.viewGroupDetails = viewGroupDetails;
 window.showInviteLink = showInviteLink;
 window.openPartyChat = openPartyChat;
+window.editGroup = editGroup;
+window.removeMember = removeMember;
+
+// Edit Group Functions
+let currentEditGroupId = null;
+
+async function editGroup(groupId) {
+    currentEditGroupId = groupId;
+    
+    try {
+        const result = await getGroup(groupId);
+        if (!result.success) {
+            showError('Failed to load group details');
+            return;
+        }
+        
+        const group = result.data;
+        
+        // Populate form fields
+        document.getElementById('edit-group-name').value = group.name;
+        document.getElementById('edit-group-description').value = group.description || '';
+        document.getElementById('edit-max-players').value = group.maxPlayers;
+        
+        // Load members
+        await loadGroupMembers(group);
+        
+        // Show modal
+        editGroupModal.style.display = 'block';
+    } catch (error) {
+        console.error('Error loading group for editing:', error);
+        showError('Failed to load group details');
+    }
+}
+
+async function loadGroupMembers(group) {
+    try {
+        const members = await getUsersByIds(group.members);
+        
+        membersList.innerHTML = members.map(member => {
+            const isHost = member.uid === group.hostId;
+            const isCurrentUser = member.uid === currentUser.uid;
+            
+            return `
+                <div class="member-item">
+                    <div class="member-info">
+                        ${member.username || member.email}
+                        ${isHost ? '<span class="member-role">HOST</span>' : ''}
+                    </div>
+                    ${!isHost && !isCurrentUser ? 
+                        `<button class="remove-member-btn" onclick="removeMember('${member.uid}')">Remove</button>` : 
+                        ''
+                    }
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading members:', error);
+        membersList.innerHTML = '<div class="member-item">Failed to load members</div>';
+    }
+}
+
+async function removeMember(userId) {
+    if (!confirm('Are you sure you want to remove this member from the party?')) {
+        return;
+    }
+    
+    try {
+        const groupRef = doc(db, 'groups', currentEditGroupId);
+        const groupDoc = await getDoc(groupRef);
+        
+        if (groupDoc.exists()) {
+            const group = groupDoc.data();
+            const updatedMembers = group.members.filter(id => id !== userId);
+            
+            await updateDoc(groupRef, {
+                members: updatedMembers
+            });
+            
+            // Reload the group data and refresh the modal
+            const result = await getGroup(currentEditGroupId);
+            if (result.success) {
+                await loadGroupMembers(result.data);
+            }
+            
+            showSuccess('Member removed successfully');
+        }
+    } catch (error) {
+        console.error('Error removing member:', error);
+        showError('Failed to remove member');
+    }
+}
+
+async function updateGroup() {
+    if (!currentEditGroupId) {
+        console.error('No group ID set for editing');
+        showError('No group selected for editing');
+        return;
+    }
+    
+    console.log('Updating group:', currentEditGroupId);
+    
+    try {
+        const name = document.getElementById('edit-group-name').value.trim();
+        const description = document.getElementById('edit-group-description').value.trim();
+        const maxPlayers = parseInt(document.getElementById('edit-max-players').value);
+        
+        console.log('Form values:', { name, description, maxPlayers });
+        
+        if (!name) {
+            showError('Party name is required');
+            return;
+        }
+        
+        const groupRef = doc(db, 'groups', currentEditGroupId);
+        console.log('Updating document:', groupRef.path);
+        
+        await updateDoc(groupRef, {
+            name,
+            description,
+            maxPlayers
+        });
+        
+        console.log('Group updated successfully');
+        showSuccess('Party updated successfully');
+        editGroupModal.style.display = 'none';
+        
+        // Refresh the groups list
+        await loadUserGroups();
+    } catch (error) {
+        console.error('Error updating group:', error);
+        showError('Failed to update party: ' + error.message);
+    }
+}
+
+async function deleteGroup() {
+    if (!currentEditGroupId) return;
+    
+    const confirmText = prompt('Are you sure you want to delete this party? This action cannot be undone. Type "DELETE" to confirm:');
+    
+    if (confirmText !== 'DELETE') {
+        return;
+    }
+    
+    try {
+        // Delete the group document
+        await deleteDoc(doc(db, 'groups', currentEditGroupId));
+        
+        showSuccess('Party deleted successfully');
+        editGroupModal.style.display = 'none';
+        
+        // Refresh the groups list
+        await loadUserGroups();
+    } catch (error) {
+        console.error('Error deleting group:', error);
+        showError('Failed to delete party');
+    }
+}
 
 // Utility Functions
 function copyToClipboard(text) {
@@ -433,6 +602,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 modal.style.display = 'none';
             }
         });
+    });
+    
+    // Edit Group Modal event listeners
+    editGroupForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        console.log('Edit form submitted');
+        await updateGroup();
+    });
+    
+    deleteGroupBtn?.addEventListener('click', async () => {
+        console.log('Delete button clicked');
+        await deleteGroup();
     });
     
     // Close modals when clicking outside

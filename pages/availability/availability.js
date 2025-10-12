@@ -7,6 +7,7 @@ import { getUserGroups, getUsersByIds } from '../../shared/js/database.js';
 
 // DOM Elements
 const logoutBtn = document.getElementById('logout-btn');
+const backToTavernBtn = document.getElementById('back-to-tavern-btn');
 const prevWeekBtn = document.getElementById('prev-week');
 const nextWeekBtn = document.getElementById('next-week');
 const currentWeekDisplay = document.getElementById('current-week-display');
@@ -14,10 +15,18 @@ const scheduleGridContent = document.getElementById('schedule-grid-content');
 const clearWeekBtn = document.getElementById('clear-week');
 const saveAvailabilityBtn = document.getElementById('save-availability');
 const partyAvailabilityList = document.getElementById('party-availability-list');
+const contextMenu = document.getElementById('context-menu');
 
 let currentUser = null;
 let currentWeekStart = null;
 let weeklyAvailability = {};
+let contextMenuTarget = null; // Store the clicked cell info
+
+// Drag selection state
+let isDragging = false;
+let dragStartDay = null;
+let dragStartTime = null;
+let hasDragged = false;
 
 // Time slots (48 half-hour slots per day)
 const timeSlots = [];
@@ -79,64 +88,264 @@ function generateScheduleGrid() {
     
     // Generate time slots and corresponding day slots
     timeSlots.forEach((timeSlot, timeIndex) => {
-        // Time label
+        // Time label for this row
         gridHTML += `<div class="time-label">${timeSlot.display}</div>`;
         
-        // Day slots for this time
+        // Day slots for this time (horizontal row across all 7 days)
         for (let day = 0; day < 7; day++) {
             const slotId = `${day}-${timeIndex}`;
             gridHTML += `
                 <div class="time-slot" 
                      data-day="${day}" 
-                     data-time="${timeIndex}" 
-                     onclick="toggleTimeSlot(${day}, ${timeIndex})"
-                     oncontextmenu="setUnavailable(event, ${day}, ${timeIndex})"
-                     ondblclick="setPreferred(${day}, ${timeIndex})">
+                     data-time="${timeIndex}">
                 </div>
             `;
         }
     });
     
     scheduleGridContent.innerHTML = gridHTML;
+    
+    // Add event listeners to all time slots
+    const timeSlotElements = document.querySelectorAll('.time-slot');
+    timeSlotElements.forEach(slot => {
+        const day = parseInt(slot.dataset.day);
+        const timeIndex = parseInt(slot.dataset.time);
+        
+        // Mouse events
+        slot.addEventListener('mousedown', (e) => startDrag(e, day, timeIndex));
+        slot.addEventListener('mouseenter', () => continueDrag(day, timeIndex));
+        slot.addEventListener('mouseup', () => endDrag());
+        slot.addEventListener('click', (e) => handleClick(e, day, timeIndex));
+        slot.addEventListener('contextmenu', (e) => showContextMenu(e, day, timeIndex));
+        
+        // Touch events
+        slot.addEventListener('touchstart', (e) => startDrag(e, day, timeIndex));
+        slot.addEventListener('touchmove', (e) => handleTouchMove(e));
+        slot.addEventListener('touchend', () => endDrag());
+    });
+    
+    // Add global mouse up listener to handle drag end
+    document.addEventListener('mouseup', endDrag);
+    // Prevent text selection during drag
+    scheduleGridContent.addEventListener('selectstart', e => e.preventDefault());
+    
+    // Add context menu event listeners
+    setupContextMenu();
 }
 
-// Toggle time slot availability
-function toggleTimeSlot(day, timeIndex) {
+// Drag selection functions
+function startDrag(event, day, timeIndex) {
+    event.preventDefault();
+    isDragging = true;
+    hasDragged = false;
+    dragStartDay = day;
+    dragStartTime = timeIndex;
+    
+    // Don't automatically set the cell - let the drag or click handle it
+}
+
+function continueDrag(day, timeIndex) {
+    if (!isDragging || dragStartDay !== day) return; // Only drag within the same column
+    
+    hasDragged = true; // Mark that we've actually dragged
+    
+    // Fill all cells between drag start and current position
+    const startTime = Math.min(dragStartTime, timeIndex);
+    const endTime = Math.max(dragStartTime, timeIndex);
+    
+    for (let time = startTime; time <= endTime; time++) {
+        const slotKey = `${day}-${time}`;
+        weeklyAvailability[slotKey] = 'available';
+        updateSlotVisual(day, time);
+    }
+}
+
+function endDrag() {
+    isDragging = false;
+    dragStartDay = null;
+    dragStartTime = null;
+    // Note: don't reset hasDragged here, let the click handler check it
+}
+
+function handleClick(event, day, timeIndex) {
+    // Small delay to let drag operations complete
+    setTimeout(() => {
+        // If we just finished dragging, don't process click
+        if (hasDragged) {
+            hasDragged = false;
+            return;
+        }
+        
+        const slotKey = `${day}-${timeIndex}`;
+        const currentState = weeklyAvailability[slotKey] || 'none';
+        
+        // Cycle through states: none -> available -> preferred -> unavailable -> none
+        let nextState;
+        switch (currentState) {
+            case 'none':
+                nextState = 'available';
+                break;
+            case 'available':
+                nextState = 'preferred';
+                break;
+            case 'preferred':
+                nextState = 'unavailable';
+                break;
+            case 'unavailable':
+                nextState = 'none';
+                break;
+            default:
+                nextState = 'available';
+        }
+        
+        weeklyAvailability[slotKey] = nextState;
+        updateSlotVisual(day, timeIndex);
+        hasDragged = false;
+    }, 10);
+}
+
+function showContextMenu(event, day, timeIndex) {
+    event.preventDefault();
+    
+    // Store the target cell info
+    contextMenuTarget = { day, timeIndex };
+    
+    // Get the clicked cell element for positioning
+    const clickedCell = event.target;
+    const cellRect = clickedCell.getBoundingClientRect();
+    
+    // Position the context menu to the right of the cell
+    const menuX = cellRect.right + 5; // 5px margin to the right of the cell
+    const menuY = cellRect.top;
+    
+    // Make sure the menu doesn't go off-screen
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const menuWidth = 120; // approximate width of context menu
+    const menuHeight = 160; // approximate height of context menu (4 items)
+    
+    let finalX = menuX;
+    let finalY = menuY;
+    
+    // If menu would go off right edge, show it to the left of the cell
+    if (menuX + menuWidth > viewportWidth) {
+        finalX = cellRect.left - menuWidth - 5;
+    }
+    
+    // If menu would go off bottom, adjust upward
+    if (menuY + menuHeight > viewportHeight) {
+        finalY = viewportHeight - menuHeight - 10;
+    }
+    
+    // Make sure it doesn't go above the top
+    if (finalY < 10) {
+        finalY = 10;
+    }
+    
+    contextMenu.style.left = finalX + 'px';
+    contextMenu.style.top = finalY + 'px';
+    contextMenu.style.display = 'block';
+}
+
+function setupContextMenu() {
+    // Add click listeners to context menu items
+    const menuItems = contextMenu.querySelectorAll('.context-menu-item');
+    menuItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            const color = item.dataset.color;
+            if (contextMenuTarget) {
+                setConnectedCellsColor(contextMenuTarget.day, contextMenuTarget.timeIndex, color);
+            }
+            hideContextMenu();
+        });
+    });
+    
+    // Hide context menu when clicking elsewhere
+    document.addEventListener('click', (e) => {
+        if (!contextMenu.contains(e.target)) {
+            hideContextMenu();
+        }
+    });
+}
+
+function hideContextMenu() {
+    contextMenu.style.display = 'none';
+    contextMenuTarget = null;
+}
+
+function setConnectedCellsColor(day, timeIndex, newColor) {
     const slotKey = `${day}-${timeIndex}`;
     const currentState = weeklyAvailability[slotKey] || 'none';
     
-    // Cycle through states: none -> available -> none
-    if (currentState === 'none') {
-        weeklyAvailability[slotKey] = 'available';
-    } else if (currentState === 'available') {
-        weeklyAvailability[slotKey] = 'none';
-    } else if (currentState === 'preferred') {
-        weeklyAvailability[slotKey] = 'available';
-    } else if (currentState === 'unavailable') {
-        weeklyAvailability[slotKey] = 'available';
+    // Find all connected cells with the same color
+    const connectedCells = findConnectedCellsOfSameColor(day, timeIndex, currentState);
+    
+    // Set all connected cells to the new color
+    connectedCells.forEach(({ day: cellDay, time: cellTime }) => {
+        const cellKey = `${cellDay}-${cellTime}`;
+        if (newColor === 'none') {
+            delete weeklyAvailability[cellKey];
+        } else {
+            weeklyAvailability[cellKey] = newColor;
+        }
+        updateSlotVisual(cellDay, cellTime);
+    });
+}
+
+function findConnectedCellsOfSameColor(day, timeIndex, targetColor) {
+    const visited = new Set();
+    const connected = [];
+    const queue = [{ day, time: timeIndex }];
+    
+    while (queue.length > 0) {
+        const { day: currentDay, time: currentTime } = queue.shift();
+        const key = `${currentDay}-${currentTime}`;
+        
+        if (visited.has(key)) continue;
+        visited.add(key);
+        
+        const slotKey = `${currentDay}-${currentTime}`;
+        const cellState = weeklyAvailability[slotKey] || 'none';
+        
+        // Only include cells that match the target color
+        if (cellState !== targetColor) continue;
+        
+        connected.push({ day: currentDay, time: currentTime });
+        
+        // Check adjacent cells in the same column (up and down)
+        if (currentTime > 0) {
+            queue.push({ day: currentDay, time: currentTime - 1 });
+        }
+        if (currentTime < timeSlots.length - 1) {
+            queue.push({ day: currentDay, time: currentTime + 1 });
+        }
     }
     
-    updateSlotVisual(day, timeIndex);
+    return connected;
 }
 
-// Set preferred time (double-click)
-function setPreferred(day, timeIndex) {
-    const slotKey = `${day}-${timeIndex}`;
-    weeklyAvailability[slotKey] = 'preferred';
-    updateSlotVisual(day, timeIndex);
-}
-
-// Set unavailable (right-click)
-function setUnavailable(event, day, timeIndex) {
+function handleTouchMove(event) {
+    if (!isDragging) return;
+    
     event.preventDefault();
-    const slotKey = `${day}-${timeIndex}`;
-    weeklyAvailability[slotKey] = 'unavailable';
-    updateSlotVisual(day, timeIndex);
+    const touch = event.touches[0];
+    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    
+    if (element && element.classList.contains('time-slot')) {
+        const day = parseInt(element.dataset.day);
+        const timeIndex = parseInt(element.dataset.time);
+        continueDrag(day, timeIndex);
+    }
 }
 
 // Update slot visual appearance
 function updateSlotVisual(day, timeIndex) {
     const slot = document.querySelector(`[data-day="${day}"][data-time="${timeIndex}"]`);
+    if (!slot) {
+        console.error('Could not find slot:', day, timeIndex);
+        return;
+    }
+    
     const slotKey = `${day}-${timeIndex}`;
     const state = weeklyAvailability[slotKey] || 'none';
     
@@ -334,11 +543,6 @@ function goToNextWeek() {
     loadPartyAvailability();
 }
 
-// Make functions global for onclick handlers
-window.toggleTimeSlot = toggleTimeSlot;
-window.setPreferred = setPreferred;
-window.setUnavailable = setUnavailable;
-
 // Authentication
 async function handleLogout() {
     try {
@@ -348,6 +552,10 @@ async function handleLogout() {
         console.error('Logout error:', error);
         alert('Failed to log out. Please try again.');
     }
+}
+
+function handleBackToTavern() {
+    window.location.href = '../groups/groups.html';
 }
 
 // Event Listeners
@@ -367,6 +575,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Button event listeners
     logoutBtn?.addEventListener('click', handleLogout);
+    backToTavernBtn?.addEventListener('click', handleBackToTavern);
     prevWeekBtn?.addEventListener('click', goToPreviousWeek);
     nextWeekBtn?.addEventListener('click', goToNextWeek);
     clearWeekBtn?.addEventListener('click', clearWeek);
