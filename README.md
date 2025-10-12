@@ -4,11 +4,13 @@ A D&D party finder and group management web application built with Firebase and 
 
 ## 🎯 Features
 
-- **Firebase Authentication** - Secure email/password login and registration
+- **Firebase Authentication** - Secure email/password login and registration with usernames
 - **Group Management** - Create and join D&D parties with unique 6-digit IDs
+- **Party Chat** - Real-time messaging system for party communication
+- **Friends System** - Add friends by email and manage your adventurer network
+- **Availability Scheduler** - Interactive calendar for planning game sessions
 - **Invite System** - Share party links with friends for easy joining
 - **Auto-Friending** - Party members automatically become friends
-- **Character Creation** - Create and customize your D&D character
 - **Responsive Design** - Works on desktop and mobile devices
 - **Fantasy Theme** - Immersive medieval/D&D aesthetic
 

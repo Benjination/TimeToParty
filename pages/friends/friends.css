@@ -1,0 +1,254 @@
+/* Friends Page Specific Styles */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #d4af37;
+}
+
+.page-header h1 {
+    color: #d4af37;
+    font-size: 2.5rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.friends-content {
+    display: grid;
+    gap: 30px;
+}
+
+/* Friends Section */
+.friends-section {
+    background: rgba(139, 69, 19, 0.3);
+    padding: 30px;
+    border-radius: 15px;
+    border: 2px solid #d4af37;
+}
+
+.friends-section h2 {
+    color: #d4af37;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+    text-align: center;
+}
+
+.friends-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.friend-card {
+    background: rgba(139, 69, 19, 0.4);
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #d4af37;
+    transition: transform 0.3s ease;
+}
+
+.friend-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+}
+
+.friend-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.friend-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #d4af37, #f4e4c1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #2c1810;
+    font-size: 1.2rem;
+}
+
+.friend-details h4 {
+    color: #d4af37;
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+}
+
+.friend-details p {
+    color: #c9b037;
+    font-size: 0.9rem;
+}
+
+.friend-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.friend-actions button {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+/* Add Friend Section */
+.add-friend-section {
+    background: rgba(139, 69, 19, 0.2);
+    padding: 25px;
+    border-radius: 15px;
+    border: 2px solid #d4af37;
+    text-align: center;
+}
+
+.add-friend-section h3 {
+    color: #d4af37;
+    margin-bottom: 10px;
+    font-size: 1.4rem;
+}
+
+.add-friend-section p {
+    color: #c9b037;
+    margin-bottom: 20px;
+}
+
+.add-friend-section form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Party Members Section */
+.party-friends-section {
+    background: rgba(139, 69, 19, 0.2);
+    padding: 25px;
+    border-radius: 15px;
+    border: 2px solid #d4af37;
+}
+
+.party-friends-section h3 {
+    color: #d4af37;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+    text-align: center;
+}
+
+.party-members-list {
+    display: grid;
+    gap: 15px;
+}
+
+.party-group {
+    background: rgba(74, 44, 42, 0.5);
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #d4af37;
+}
+
+.party-group h4 {
+    color: #d4af37;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.party-members {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 10px;
+}
+
+.party-member {
+    background: rgba(139, 69, 19, 0.3);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #8b4513;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.party-member .friend-avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+}
+
+.party-member .member-info h5 {
+    color: #d4af37;
+    margin-bottom: 3px;
+    font-size: 0.95rem;
+}
+
+.party-member .member-info p {
+    color: #c9b037;
+    font-size: 0.8rem;
+}
+
+.host-badge {
+    background: linear-gradient(45deg, #d4af37, #f4e4c1);
+    color: #2c1810;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+/* Loading and Empty States */
+.loading-message,
+.no-friends-message,
+.no-parties-message {
+    text-align: center;
+    color: #c9b037;
+    font-style: italic;
+    padding: 40px;
+}
+
+.no-friends-message {
+    background: rgba(74, 44, 42, 0.3);
+    border-radius: 10px;
+    border: 1px dashed #d4af37;
+}
+
+/* Online Status */
+.online-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #22c55e;
+    border: 2px solid #16a34a;
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+}
+
+.friend-avatar {
+    position: relative;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .friends-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .party-members {
+        grid-template-columns: 1fr;
+    }
+    
+    .friend-actions {
+        flex-direction: column;
+    }
+}

@@ -49,6 +49,40 @@ export async function getUserProfile(userId) {
     }
 }
 
+export async function getUserByEmail(email) {
+    try {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('email', '==', email));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+            const userDoc = querySnapshot.docs[0];
+            return { success: true, data: { id: userDoc.id, ...userDoc.data() } };
+        } else {
+            return { success: false, error: 'User not found' };
+        }
+    } catch (error) {
+        console.error('Error getting user by email:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function getUsersByIds(userIds) {
+    try {
+        const users = [];
+        for (const userId of userIds) {
+            const userResult = await getUserProfile(userId);
+            if (userResult.success) {
+                users.push({ id: userId, ...userResult.data });
+            }
+        }
+        return { success: true, data: users };
+    } catch (error) {
+        console.error('Error getting users by IDs:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 // Group operations
 export async function createGroup(hostUserId, groupData) {
     try {

@@ -1,6 +1,7 @@
 // Login Page JavaScript
 import { signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { auth } from '../../shared/js/firebase-config.js';
+import { doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { auth, db } from '../../shared/js/firebase-config.js';
 import { showError, showSuccess, addLoadingState, removeLoadingState } from '../../shared/js/utils.js';
 
 // DOM Elements
@@ -77,8 +78,28 @@ async function handleForgotPassword(email) {
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
     // Check if user is already logged in
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
+            // Ensure user profile exists with username (for legacy users)
+            try {
+                const userRef = doc(db, 'users', user.uid);
+                const userSnap = await getDoc(userRef);
+                
+                if (!userSnap.exists() || !userSnap.data().username) {
+                    // Create or update profile with default username
+                    const defaultUsername = user.email.split('@')[0];
+                    await setDoc(userRef, {
+                        email: user.email,
+                        username: defaultUsername,
+                        lastLogin: new Date(),
+                        friends: [],
+                        groups: []
+                    }, { merge: true });
+                }
+            } catch (error) {
+                console.error('Error updating user profile:', error);
+            }
+            
             // Redirect to dashboard if already logged in
             window.location.href = '../dashboard/dashboard.html';
         }

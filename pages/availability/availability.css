@@ -1,0 +1,337 @@
+/* Availability Page Specific Styles */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #d4af37;
+}
+
+.page-header h1 {
+    color: #d4af37;
+    font-size: 2.5rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 15px;
+}
+
+/* Date Navigation */
+.date-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(139, 69, 19, 0.3);
+    padding: 25px;
+    border-radius: 15px;
+    border: 2px solid #d4af37;
+    margin-bottom: 25px;
+}
+
+.nav-btn {
+    background: linear-gradient(45deg, #d4af37, #f4e4c1);
+    color: #2c1810;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.nav-btn:hover {
+    background: linear-gradient(45deg, #f4e4c1, #d4af37);
+    transform: translateY(-2px);
+}
+
+.current-date {
+    text-align: center;
+}
+
+.current-date h2 {
+    color: #d4af37;
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+}
+
+.current-date p {
+    color: #c9b037;
+    font-size: 1.1rem;
+}
+
+/* Legend */
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    background: rgba(139, 69, 19, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #d4af37;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid #d4af37;
+}
+
+.legend-color.available {
+    background: #22c55e;
+}
+
+.legend-color.unavailable {
+    background: #dc2626;
+}
+
+.legend-color.neutral {
+    background: rgba(139, 69, 19, 0.3);
+}
+
+.legend-item span {
+    color: #c9b037;
+    font-size: 0.9rem;
+}
+
+/* Time Grid */
+.time-grid-container {
+    background: rgba(139, 69, 19, 0.3);
+    border-radius: 15px;
+    border: 2px solid #d4af37;
+    padding: 20px;
+    margin-bottom: 25px;
+    overflow-x: auto;
+}
+
+.time-labels {
+    display: grid;
+    grid-template-columns: repeat(24, 50px);
+    gap: 2px;
+    margin-bottom: 10px;
+    padding-left: 80px; /* Offset for time labels */
+}
+
+.time-label {
+    color: #d4af37;
+    font-size: 0.8rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+.time-grid {
+    display: grid;
+    grid-template-columns: 75px repeat(24, 50px);
+    gap: 2px;
+    align-items: center;
+}
+
+.time-slot {
+    height: 40px;
+    border: 1px solid #8b4513;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: rgba(139, 69, 19, 0.3);
+}
+
+.time-slot:hover {
+    border-color: #d4af37;
+    transform: scale(1.05);
+}
+
+.time-slot.available {
+    background: #22c55e;
+    border-color: #16a34a;
+}
+
+.time-slot.unavailable {
+    background: #dc2626;
+    border-color: #b91c1c;
+}
+
+.hour-label {
+    color: #d4af37;
+    font-weight: bold;
+    text-align: right;
+    padding-right: 10px;
+    font-size: 0.9rem;
+}
+
+/* Actions */
+.availability-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 40px;
+    justify-content: center;
+}
+
+.availability-actions button {
+    padding: 15px 30px;
+    font-size: 1.1rem;
+}
+
+/* Party Availability Section */
+.party-availability-section {
+    background: rgba(139, 69, 19, 0.2);
+    padding: 30px;
+    border-radius: 15px;
+    border: 2px solid #d4af37;
+}
+
+.party-availability-section h3 {
+    color: #d4af37;
+    margin-bottom: 20px;
+    font-size: 1.6rem;
+    text-align: center;
+}
+
+.party-selector {
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.party-selector label {
+    display: block;
+    color: #d4af37;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.party-selector select {
+    background: rgba(244, 228, 193, 0.1);
+    border: 2px solid #8b4513;
+    color: #f4e4c1;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 1rem;
+    min-width: 250px;
+}
+
+.party-grid {
+    min-height: 200px;
+}
+
+.no-party-selected {
+    text-align: center;
+    color: #c9b037;
+    font-style: italic;
+    padding: 60px 20px;
+}
+
+.party-member-row {
+    display: grid;
+    grid-template-columns: 150px repeat(24, 30px);
+    gap: 2px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.member-name {
+    color: #d4af37;
+    font-weight: bold;
+    padding-right: 15px;
+    font-size: 0.9rem;
+}
+
+.member-time-slot {
+    height: 25px;
+    border-radius: 3px;
+    border: 1px solid #8b4513;
+}
+
+.member-time-slot.available {
+    background: #22c55e;
+}
+
+.member-time-slot.unavailable {
+    background: #dc2626;
+}
+
+.member-time-slot.neutral {
+    background: rgba(139, 69, 19, 0.3);
+}
+
+/* Loading States */
+.loading-availability {
+    text-align: center;
+    color: #c9b037;
+    padding: 40px;
+    font-style: italic;
+}
+
+/* Success Message */
+.save-success {
+    background: rgba(34, 197, 94, 0.2);
+    border: 1px solid #22c55e;
+    color: #86efac;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 15px 0;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .date-navigation {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .legend {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .time-grid-container {
+        overflow-x: scroll;
+        padding: 15px;
+    }
+    
+    .time-labels,
+    .time-grid {
+        min-width: 800px;
+    }
+    
+    .availability-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .party-member-row {
+        grid-template-columns: 120px repeat(24, 25px);
+        gap: 1px;
+    }
+    
+    .member-name {
+        font-size: 0.8rem;
+    }
+    
+    .member-time-slot {
+        height: 20px;
+    }
+}

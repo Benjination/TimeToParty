@@ -1,13 +1,40 @@
 // Signup Page JavaScript
 import { createUserWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { auth } from '../../shared/js/firebase-config.js';
+import { doc, setDoc, query, where, getDocs, collection } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { auth, db } from '../../shared/js/firebase-config.js';
 import { showError, showSuccess, addLoadingState, removeLoadingState } from '../../shared/js/utils.js';
 
 // DOM Elements
 const signupForm = document.getElementById('signup-form');
 
 // Authentication Functions
-async function handleSignup(email, password, confirmPassword) {
+async function handleSignup(username, email, password, confirmPassword) {
+    // Validate username
+    if (!username || username.length < 3 || username.length > 20) {
+        showError('Username must be between 3 and 20 characters.', signupForm);
+        return;
+    }
+    
+    // Validate username format (letters, numbers, underscores only)
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        showError('Username can only contain letters, numbers, and underscores.', signupForm);
+        return;
+    }
+    
+    // Check if username is already taken
+    try {
+        const usernameQuery = query(collection(db, 'users'), where('username', '==', username));
+        const usernameSnapshot = await getDocs(usernameQuery);
+        if (!usernameSnapshot.empty) {
+            showError('Username is already taken. Please choose another.', signupForm);
+            return;
+        }
+    } catch (error) {
+        console.error('Error checking username:', error);
+        showError('Failed to verify username. Please try again.', signupForm);
+        return;
+    }
+    
     // Validate passwords match
     if (password !== confirmPassword) {
         showError('Passwords do not match. Please try again.', signupForm);
@@ -22,7 +49,18 @@ async function handleSignup(email, password, confirmPassword) {
     
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        console.log('User created:', userCredential.user);
+        const user = userCredential.user;
+        
+        // Create user profile in Firestore with username
+        await setDoc(doc(db, 'users', user.uid), {
+            username: username,
+            email: email,
+            createdAt: new Date(),
+            friends: [],
+            groups: []
+        });
+        
+        console.log('User created:', user);
         showSuccess('Account created successfully! Welcome to the party!', signupForm);
         
         // Redirect to dashboard after a brief delay
@@ -70,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
     signupForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        const username = document.getElementById('signup-username').value.trim();
         const email = document.getElementById('signup-email').value;
         const password = document.getElementById('signup-password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
@@ -78,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         addLoadingState(submitBtn);
         
-        await handleSignup(email, password, confirmPassword);
+        await handleSignup(username, email, password, confirmPassword);
         
         removeLoadingState(submitBtn, originalText);
     });

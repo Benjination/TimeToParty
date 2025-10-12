@@ -1,6 +1,16 @@
 // Groups Page JavaScript
 import { signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { 
+    doc, 
+    setDoc, 
+    collection, 
+    addDoc, 
+    query, 
+    orderBy, 
+    onSnapshot, 
+    serverTimestamp,
+    where
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { auth, db } from '../../shared/js/firebase-config.js';
 import { showError, showSuccess, addLoadingState, removeLoadingState } from '../../shared/js/utils.js';
 import { 
@@ -9,7 +19,8 @@ import {
     getUserGroups, 
     getGroup, 
     generateInviteLink,
-    createUserProfile 
+    createUserProfile,
+    getUserProfile
 } from '../../shared/js/database.js';
 
 // DOM Elements
@@ -23,7 +34,17 @@ const closeModals = document.querySelectorAll('.close');
 const copyLinkBtn = document.getElementById('copy-link-btn');
 const inviteLinkInput = document.getElementById('invite-link');
 
+// Chat Elements
+const partyChatSection = document.getElementById('party-chat-section');
+const chatPartyName = document.getElementById('chat-party-name');
+const closeChatBtn = document.getElementById('close-chat');
+const chatMessages = document.getElementById('chat-messages');
+const chatForm = document.getElementById('chat-form');
+const chatInput = document.getElementById('chat-input');
+
 let currentUser = null;
+let currentGroupId = null;
+let unsubscribeChat = null;
 
 // Authentication Functions
 async function handleLogout() {
@@ -109,6 +130,7 @@ function displayGroups(groups) {
             </div>
             <div class="group-actions">
                 <button class="btn-secondary" onclick="viewGroupDetails('${group.groupId}')">View Details</button>
+                <button class="btn-primary" onclick="openPartyChat('${group.groupId}', '${group.name}')">Party Chat</button>
                 <button class="btn-primary" onclick="showInviteLink('${group.groupId}')">Share Link</button>
             </div>
         </div>
@@ -160,9 +182,116 @@ async function viewGroupDetails(groupId) {
     }
 }
 
+// Chat Functions
+async function openPartyChat(groupId, groupName) {
+    currentGroupId = groupId;
+    chatPartyName.textContent = `${groupName} - Party Chat`;
+    partyChatSection.style.display = 'block';
+    
+    // Scroll to chat section
+    partyChatSection.scrollIntoView({ behavior: 'smooth' });
+    
+    // Subscribe to chat messages
+    subscribeToChat(groupId);
+}
+
+function closePartyChat() {
+    partyChatSection.style.display = 'none';
+    currentGroupId = null;
+    
+    // Unsubscribe from chat messages
+    if (unsubscribeChat) {
+        unsubscribeChat();
+        unsubscribeChat = null;
+    }
+}
+
+function subscribeToChat(groupId) {
+    // Unsubscribe from previous chat if any
+    if (unsubscribeChat) {
+        unsubscribeChat();
+    }
+    
+    const messagesRef = collection(db, 'groups', groupId, 'messages');
+    const q = query(messagesRef, orderBy('timestamp', 'asc'));
+    
+    unsubscribeChat = onSnapshot(q, (snapshot) => {
+        const messages = [];
+        snapshot.forEach((doc) => {
+            messages.push({ id: doc.id, ...doc.data() });
+        });
+        displayChatMessages(messages);
+    }, (error) => {
+        console.error('Error listening to messages:', error);
+        chatMessages.innerHTML = '<div class="no-messages">Failed to load messages.</div>';
+    });
+}
+
+function displayChatMessages(messages) {
+    if (messages.length === 0) {
+        chatMessages.innerHTML = '<div class="no-messages">No messages yet. Start the conversation!</div>';
+        return;
+    }
+    
+    chatMessages.innerHTML = messages.map(message => {
+        const isOwnMessage = message.userId === currentUser.uid;
+        const messageTime = message.timestamp ? 
+            new Date(message.timestamp.toDate()).toLocaleString() : 
+            'Sending...';
+        
+        return `
+            <div class="message ${isOwnMessage ? 'own-message' : ''}">
+                <div class="message-header">
+                    <span class="message-author">${message.userName || 'Anonymous'}</span>
+                    <span class="message-time">${messageTime}</span>
+                </div>
+                <div class="message-content">${escapeHtml(message.content)}</div>
+            </div>
+        `;
+    }).join('');
+    
+    // Scroll to bottom of messages
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+async function sendMessage(content) {
+    if (!currentGroupId || !currentUser || !content.trim()) {
+        return;
+    }
+    
+    try {
+        // Get current user's profile to get username
+        const userResult = await getUserProfile(currentUser.uid);
+        const userName = userResult.success && userResult.data.username ? 
+            userResult.data.username : 
+            currentUser.email.split('@')[0];
+        
+        const messagesRef = collection(db, 'groups', currentGroupId, 'messages');
+        await addDoc(messagesRef, {
+            content: content.trim(),
+            userId: currentUser.uid,
+            userName: userName,
+            timestamp: serverTimestamp()
+        });
+        
+        // Clear input
+        chatInput.value = '';
+    } catch (error) {
+        console.error('Error sending message:', error);
+        alert('Failed to send message. Please try again.');
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Make functions global for onclick handlers
 window.viewGroupDetails = viewGroupDetails;
 window.showInviteLink = showInviteLink;
+window.openPartyChat = openPartyChat;
 
 // Utility Functions
 function copyToClipboard(text) {
@@ -257,6 +386,17 @@ document.addEventListener('DOMContentLoaded', function() {
     
     copyLinkBtn?.addEventListener('click', () => {
         copyToClipboard(inviteLinkInput.value);
+    });
+    
+    // Chat event listeners
+    closeChatBtn?.addEventListener('click', closePartyChat);
+    
+    chatForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const content = chatInput.value.trim();
+        if (content) {
+            await sendMessage(content);
+        }
     });
     
     // Modal event listeners

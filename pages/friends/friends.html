@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends - Time to Party</title>
+    <link rel="stylesheet" href="../../shared/css/base.css">
+    <link rel="stylesheet" href="friends.css">
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <h1>Your Fellow Adventurers</h1>
+            <div class="header-actions">
+                <a href="../dashboard/dashboard.html" class="btn-secondary">Back to Tavern</a>
+                <button id="logout-btn" class="btn-secondary">Leave Tavern</button>
+            </div>
+        </header>
+        
+        <div class="friends-content">
+            <!-- Friends List -->
+            <div class="friends-section">
+                <h2>Your Friends</h2>
+                <div id="friends-list" class="friends-list">
+                    <div class="loading-message">Loading your friends...</div>
+                </div>
+            </div>
+            
+            <!-- Add Friend Section -->
+            <div class="add-friend-section">
+                <h3>Add New Friend</h3>
+                <p>Connect with other adventurers by their email address</p>
+                <form id="add-friend-form">
+                    <div class="input-group">
+                        <input type="email" id="friend-email" placeholder="Enter friend's email address" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Send Friend Request</button>
+                </form>
+            </div>
+            
+            <!-- Parties with Friends -->
+            <div class="party-friends-section">
+                <h3>Party Members</h3>
+                <div id="party-members-list" class="party-members-list">
+                    <div class="loading-message">Loading party members...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="friends.js"></script>
+</body>
+</html>

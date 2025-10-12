@@ -246,3 +246,138 @@
         flex-direction: column;
     }
 }
+
+/* Party Chat Styles */
+.party-chat-section {
+    margin-top: 2rem;
+    background: rgba(139, 69, 19, 0.15);
+    border: 2px solid #8b4513;
+    border-radius: 10px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #8b4513;
+    color: #d4af37;
+    border-radius: 8px 8px 0 0;
+}
+
+.chat-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.chat-container {
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.95);
+    min-height: 300px;
+    max-height: 300px;
+}
+
+.message {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: rgba(218, 165, 32, 0.1);
+    border-left: 3px solid #8b4513;
+    border-radius: 5px;
+}
+
+.message.own-message {
+    background: rgba(139, 69, 19, 0.1);
+    border-left-color: #d4af37;
+    margin-left: 2rem;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.message-author {
+    font-weight: bold;
+    color: #8b4513;
+    font-size: 0.9rem;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.message-content {
+    color: #333;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.chat-input-container {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 0 0 8px 8px;
+}
+
+.chat-input-container form {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.chat-input-container input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid #8b4513;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.chat-input-container button {
+    padding: 0.75rem 1.5rem;
+    white-space: nowrap;
+}
+
+.no-messages {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 2rem;
+}
+
+@media (max-width: 768px) {
+    .party-chat-section {
+        margin: 1rem;
+    }
+    
+    .chat-container {
+        height: 350px;
+    }
+    
+    .chat-messages {
+        min-height: 250px;
+        max-height: 250px;
+    }
+    
+    .chat-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+    
+    .message.own-message {
+        margin-left: 1rem;
+    }
+}
