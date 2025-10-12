@@ -5,6 +5,7 @@ import {
     addDoc, 
     getDoc, 
     getDocs, 
+    setDoc,
     updateDoc, 
     deleteDoc, 
     query, 
@@ -90,7 +91,7 @@ export async function createGroup(hostUserId, groupData) {
         const groupId = Math.floor(100000 + Math.random() * 900000).toString();
         
         const groupRef = doc(db, 'groups', groupId);
-        await updateDoc(groupRef, {
+        await setDoc(groupRef, {
             ...groupData,
             groupId: groupId,
             hostId: hostUserId,
