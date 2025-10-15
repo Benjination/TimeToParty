@@ -83,6 +83,23 @@
     background: #ef4444;
 }
 
+/* Mobile scroll hint */
+.mobile-scroll-hint {
+    display: none;
+    text-align: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid #d4af37;
+    border-radius: 8px;
+}
+
+.mobile-scroll-hint p {
+    margin: 0;
+    color: #d4af37;
+    font-size: 0.9rem;
+}
+
 /* Schedule Container */
 .schedule-container {
     margin-bottom: 30px;
@@ -90,6 +107,29 @@
     background: white;
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    /* Enhanced scrolling for mobile */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #d4af37 #f0f0f0;
+}
+
+/* Custom scrollbar for webkit browsers */
+.schedule-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.schedule-container::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+
+.schedule-container::-webkit-scrollbar-thumb {
+    background: #d4af37;
+    border-radius: 4px;
+}
+
+.schedule-container::-webkit-scrollbar-thumb:hover {
+    background: #c9b037;
 }
 
 .schedule-grid {
@@ -147,6 +187,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Enhanced touch interaction */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
 }
 
 .time-slot:hover {
@@ -154,6 +198,16 @@
     transform: scale(1.1);
     z-index: 10;
     position: relative;
+}
+
+/* Add visual feedback for touch devices */
+.time-slot:focus {
+    outline: 2px solid #d4af37;
+    outline-offset: 1px;
+}
+
+.time-slot:active {
+    transform: scale(0.98);
 }
 
 .time-slot.available {
@@ -169,6 +223,25 @@
 .time-slot.unavailable {
     background: #ef4444;
     color: white;
+}
+
+/* Touch device specific styles */
+.touch-device .time-slot:hover {
+    /* Disable hover effects on touch devices */
+    transform: none;
+    border: 1px solid #666;
+}
+
+.touch-device .time-slot:active {
+    /* Quick feedback for touch */
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+}
+
+.touch-device .time-slot:focus {
+    /* Better focus indication for touch */
+    outline: 3px solid #d4af37;
+    outline-offset: 2px;
 }
 
 /* Action Buttons */
@@ -309,6 +382,12 @@
         text-align: center;
     }
     
+    .header-buttons {
+        flex-direction: row;
+        justify-content: center;
+        gap: 10px;
+    }
+    
     .week-navigation {
         flex-direction: column;
         gap: 15px;
@@ -316,40 +395,85 @@
     }
     
     .week-navigation .btn-secondary {
-        padding: 10px 20px;
+        padding: 12px 24px;
+        min-height: 44px;
     }
     
     .legend {
-        flex-direction: column;
-        gap: 10px;
-        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+    }
+    
+    .legend-item {
+        font-size: 0.9rem;
+        gap: 6px;
+    }
+    
+    /* Show mobile scroll hint on tablets */
+    .mobile-scroll-hint {
+        display: block;
     }
     
     .schedule-container {
+        /* Enhanced mobile scrolling */
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         border-radius: 8px;
+        margin: 0 -10px; /* Allow table to use full width */
+        padding: 0 10px;
+        position: relative;
+    }
+    
+    /* Add scroll indicator */
+    .schedule-container::after {
+        content: "← Scroll horizontally to see all days →";
+        position: absolute;
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.8rem;
+        color: #d4af37;
+        background: rgba(139, 69, 19, 0.1);
+        padding: 4px 12px;
+        border-radius: 12px;
+        white-space: nowrap;
     }
     
     .schedule-grid {
-        min-width: 650px;
-        grid-template-columns: 60px repeat(7, 80px);
+        /* Optimized for tablet touch */
+        min-width: 720px;
+        grid-template-columns: 80px repeat(7, 90px);
         gap: 1px;
     }
     
     .time-label {
         font-size: 0.7rem;
-        padding: 4px;
+        padding: 6px 2px;
         writing-mode: horizontal-tb;
+        min-height: 24px;
     }
     
     .day-header {
-        font-size: 0.9rem;
-        padding: 8px 4px;
+        font-size: 0.85rem;
+        padding: 10px 4px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     .time-slot {
-        min-height: 35px;
+        min-height: 40px; /* Larger touch target */
+        min-width: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .time-slot:hover {
+        transform: scale(1.05); /* Less aggressive scaling on mobile */
     }
     
     .action-buttons {
@@ -361,7 +485,8 @@
     .action-buttons .btn-primary,
     .action-buttons .btn-secondary {
         width: 100%;
-        max-width: 200px;
+        max-width: 280px;
+        min-height: 44px;
     }
     
     .availability-summary {
@@ -379,38 +504,96 @@
         font-size: 2rem;
     }
     
-    .schedule-container {
-        margin: 0 -5px;
+    .header-buttons {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
     }
     
-    .schedule-grid {
-        min-width: 580px;
-        grid-template-columns: 50px repeat(7, 70px);
+    .header-buttons .btn-primary,
+    .header-buttons .btn-secondary {
+        width: 100%;
+        max-width: 200px;
+        min-height: 44px;
     }
     
-    .time-label {
-        font-size: 0.6rem;
-        padding: 2px;
-    }
-    
-    .day-header {
-        font-size: 0.8rem;
-        padding: 6px 2px;
-    }
-    
-    .time-slot {
-        min-height: 30px;
+    .legend {
+        gap: 10px;
+        padding: 10px;
     }
     
     .legend-item {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
+        gap: 5px;
+    }
+    
+    .schedule-container {
+        margin: 0 -8px;
+        padding: 0 8px;
+    }
+    
+    /* Scroll hint more prominent on small screens */
+    .schedule-container::after {
+        font-size: 0.75rem;
+        top: -22px;
+        padding: 3px 10px;
+    }
+    
+    .schedule-grid {
+        /* Optimized for phone touch */
+        min-width: 640px;
+        grid-template-columns: 70px repeat(7, 85px);
+        gap: 1px;
+    }
+    
+    .time-label {
+        font-size: 0.65rem;
+        padding: 4px 1px;
+        min-height: 20px;
+    }
+    
+    .day-header {
+        font-size: 0.75rem;
+        padding: 8px 2px;
+        min-height: 44px;
+        line-height: 1.2;
+    }
+    
+    .time-slot {
+        min-height: 44px; /* Full touch target size for phones */
+        min-width: 44px;
+        border-width: 1px;
+    }
+    
+    /* Enhanced touch feedback for mobile */
+    .time-slot:active {
+        transform: scale(0.95);
+        transition: transform 0.1s ease;
+    }
+    
+    .time-slot:hover {
+        transform: none; /* Disable hover effects on touch devices */
+        border-width: 2px;
     }
     
     .week-navigation h2 {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
+        line-height: 1.3;
     }
     
     .availability-summary h3 {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
+    }
+    
+    /* Context menu improvements for mobile */
+    .context-menu {
+        min-width: 140px;
+        border-width: 1px;
+    }
+    
+    .context-menu-item {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+        min-height: 44px;
     }
 }

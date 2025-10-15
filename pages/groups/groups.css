@@ -30,8 +30,8 @@
 .main-content {
     display: flex;
     gap: 3rem; /* Increased gap for better spacing */
-    height: calc(100vh - 140px); /* Account for header */
-    overflow: hidden;
+    min-height: calc(100vh - 140px); /* Use min-height instead of fixed height */
+    overflow: visible; /* Allow content to expand */
     max-width: none; /* Use full width */
     margin: 0;
     padding: 0; /* Remove padding since container now handles it */
@@ -398,10 +398,12 @@
     border: 2px solid #8b4513;
     border-radius: 10px;
     height: fit-content;
-    max-height: 100%;
+    max-height: calc(100vh - 200px); /* Ensure it doesn't exceed viewport */
     display: flex;
     flex-direction: column;
     transition: all 0.3s ease;
+    position: relative; /* Ensure proper stacking */
+    z-index: 1; /* Prevent overlap */
 }
 
 .chat-header {
@@ -641,8 +643,9 @@
 @media (max-width: 768px) {
     .main-content {
         flex-direction: column;
-        height: auto;
+        min-height: auto; /* Let content determine height */
         gap: 15px;
+        overflow: visible; /* Allow natural flow */
     }
     
     .page-header {
@@ -682,12 +685,15 @@
         width: 100%;
         min-width: auto;
         order: -1; /* Put chat at top on mobile */
-        margin-bottom: 15px;
-        max-height: none;
+        margin-bottom: 20px;
+        max-height: 400px; /* Reasonable max height for mobile */
+        position: relative;
+        z-index: 2; /* Ensure it's above other content */
     }
     
     .groups-content {
         padding-right: 0;
+        order: 1; /* Ensure groups content comes after chat */
     }
     
     .chat-container {
@@ -753,7 +759,6 @@
     .member-card {
         padding: 12px;
     }
-}
     
     .invite-image {
         width: 100px;

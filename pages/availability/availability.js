@@ -50,6 +50,38 @@ for (let hour = 0; hour < 24; hour++) {
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const dayAbbreviations = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+// Touch device detection and mobile enhancements
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+const isMobile = window.innerWidth <= 768;
+
+// Mobile-specific event handling
+function addMobileEnhancements() {
+    if (isTouchDevice) {
+        // Add touch-friendly class to body
+        document.body.classList.add('touch-device');
+        
+        // Disable context menu on touch devices for time slots
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.classList.contains('time-slot')) {
+                e.preventDefault();
+            }
+        });
+        
+        // Add scroll indicators for mobile
+        const scheduleContainer = document.querySelector('.schedule-container');
+        if (scheduleContainer && isMobile) {
+            scheduleContainer.addEventListener('scroll', () => {
+                // Optional: Add visual feedback when scrolling
+                scheduleContainer.style.boxShadow = '0 4px 20px rgba(212, 175, 55, 0.3)';
+                clearTimeout(scheduleContainer.scrollTimeout);
+                scheduleContainer.scrollTimeout = setTimeout(() => {
+                    scheduleContainer.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)';
+                }, 300);
+            });
+        }
+    }
+}
+
 // Initialize week to current week
 function initializeWeek() {
     const today = new Date();
@@ -560,6 +592,9 @@ function handleBackToTavern() {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize mobile enhancements
+    addMobileEnhancements();
+    
     // Auth state listener
     onAuthStateChanged(auth, async (user) => {
         if (user) {
