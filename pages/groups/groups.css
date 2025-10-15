@@ -642,13 +642,48 @@
     .main-content {
         flex-direction: column;
         height: auto;
+        gap: 15px;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+        padding: 15px 0;
+    }
+    
+    .header-actions {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .groups-list {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .group-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .group-actions button {
+        width: 100%;
+        min-height: 44px;
+    }
+    
+    .link-input-group {
+        flex-direction: column;
+        gap: 10px;
     }
     
     .party-chat-section {
         width: 100%;
         min-width: auto;
         order: -1; /* Put chat at top on mobile */
-        margin-bottom: 1rem;
+        margin-bottom: 15px;
+        max-height: none;
     }
     
     .groups-content {
@@ -657,27 +692,68 @@
     
     .chat-container {
         min-height: 250px;
-        max-height: 250px;
+        max-height: 300px;
     }
     
     .chat-header-content {
         flex-direction: row;
         align-items: center;
-        gap: 1rem;
+        gap: 10px;
+        flex-wrap: wrap;
     }
     
     .chat-header-content h3 {
         font-size: 1rem;
+        flex-shrink: 0;
     }
     
     .group-selector {
         min-width: 150px;
         width: auto;
+        flex-grow: 1;
+    }
+    
+    .connection-status {
+        font-size: 0.8rem;
     }
     
     .message.own-message {
         margin-left: 0.5rem;
     }
+    
+    /* Form improvements for mobile */
+    .create-group-form {
+        gap: 15px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .input-group {
+        margin-bottom: 15px;
+    }
+    
+    /* Modal improvements */
+    .modal-content {
+        width: 95%;
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .members-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .member-card {
+        padding: 12px;
+    }
+}
     
     .invite-image {
         width: 100px;
@@ -690,6 +766,78 @@
     
     .invite-message {
         font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 5px;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+    }
+    
+    .party-chat-section {
+        border-radius: 8px;
+    }
+    
+    .chat-header {
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .chat-header-content {
+        gap: 8px;
+    }
+    
+    .chat-header-content h3 {
+        font-size: 0.9rem;
+    }
+    
+    .group-selector {
+        font-size: 0.8rem;
+        min-width: 120px;
+    }
+    
+    .chat-container {
+        min-height: 200px;
+        max-height: 250px;
+    }
+    
+    .create-group-section h2 {
+        font-size: 1.5rem;
+    }
+    
+    .group-card {
+        padding: 15px;
+    }
+    
+    .group-card h3 {
+        font-size: 1.2rem;
+    }
+    
+    .group-actions button {
+        font-size: 0.9rem;
+        padding: 10px 15px;
+    }
+    
+    .modal-content {
+        width: 98%;
+        padding: 15px;
+        margin: 10px auto;
+    }
+    
+    .modal-content h2 {
+        font-size: 1.3rem;
+    }
+    
+    .input-group label {
+        font-size: 0.9rem;
+    }
+    
+    .btn-primary, .btn-secondary {
+        font-size: 0.9rem;
+        padding: 10px 20px;
     }
 }
 

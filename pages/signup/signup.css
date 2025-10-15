@@ -41,14 +41,67 @@
 @media (max-width: 768px) {
     .auth-form {
         padding: 25px;
+        margin: 20px auto;
+        width: 95%;
+        max-width: 400px;
     }
     
     .character-gallery {
         gap: 10px;
+        justify-content: center;
     }
     
     .character-img {
         width: 60px;
         height: 60px;
+    }
+    
+    .container {
+        justify-content: flex-start;
+        padding-top: 20px;
+    }
+    
+    .header {
+        margin-bottom: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-form {
+        padding: 20px 15px;
+        margin: 10px auto;
+        width: 98%;
+    }
+    
+    .header h1 {
+        font-size: 2rem;
+    }
+    
+    .header p {
+        font-size: 0.9rem;
+    }
+    
+    .header-image {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .auth-form h2 {
+        font-size: 1.5rem;
+    }
+    
+    .character-gallery {
+        gap: 8px;
+    }
+    
+    .character-img {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .auth-links a {
+        display: block;
+        margin: 10px 0;
+        font-size: 0.9rem;
     }
 }

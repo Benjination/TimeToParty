@@ -181,7 +181,8 @@
 /* Responsive Design */
 @media (max-width: 768px) {
     .state-content {
-        padding: 25px;
+        padding: 25px 20px;
+        margin: 20px 10px;
     }
     
     .join-actions,
@@ -189,6 +190,7 @@
     .success-actions,
     .login-actions {
         flex-direction: column;
+        gap: 12px;
     }
     
     .join-actions .btn-primary,
@@ -200,10 +202,14 @@
     .login-actions .btn-primary,
     .login-actions .btn-secondary {
         flex: none;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
     }
     
     .character-gallery {
         gap: 10px;
+        justify-content: center;
     }
     
     .character-img {
@@ -213,5 +219,50 @@
     
     .group-stats {
         grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .header h1 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .state-content {
+        padding: 20px 15px;
+        margin: 10px 5px;
+    }
+    
+    .header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .header p {
+        font-size: 0.9rem;
+    }
+    
+    .group-info h2 {
+        font-size: 1.5rem;
+    }
+    
+    .group-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .character-gallery {
+        gap: 8px;
+    }
+    
+    .character-img {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .login-actions,
+    .join-actions,
+    .error-actions,
+    .success-actions {
+        gap: 10px;
     }
 }

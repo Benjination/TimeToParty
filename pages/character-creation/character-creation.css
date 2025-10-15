@@ -66,15 +66,64 @@
 /* Responsive Design */
 @media (max-width: 768px) {
     .character-creation-form {
-        padding: 25px;
+        padding: 25px 20px;
+        margin: 20px auto;
+        width: 95%;
+        max-width: 500px;
     }
     
     .form-actions {
         flex-direction: column;
+        gap: 12px;
     }
     
     .form-actions .btn-secondary,
     .form-actions .btn-primary {
         flex: none;
+        width: 100%;
+        max-width: 250px;
+        margin: 0 auto;
+    }
+    
+    .container {
+        justify-content: flex-start;
+        padding-top: 20px;
+    }
+    
+    .header {
+        margin-bottom: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .character-creation-form {
+        padding: 20px 15px;
+        margin: 10px auto;
+        width: 98%;
+    }
+    
+    .header h1 {
+        font-size: 2rem;
+    }
+    
+    .header p {
+        font-size: 0.9rem;
+    }
+    
+    .header-image {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .character-creation-form h2 {
+        font-size: 1.5rem;
+    }
+    
+    .input-group label {
+        font-size: 0.9rem;
+    }
+    
+    .form-actions {
+        gap: 10px;
     }
 }
