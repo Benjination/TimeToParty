@@ -849,15 +849,72 @@ function findAvailableTimeBlocks(memberAvailabilities, memberIds, sessionDuratio
     
     console.log('📊 Found', availableBlocks.length, 'total available blocks');
     
+    // Consolidate overlapping/adjacent blocks
+    const consolidatedBlocks = consolidateTimeBlocks(availableBlocks);
+    console.log('🔗 After consolidation:', consolidatedBlocks.length, 'blocks');
+    
     // Sort blocks: preferred first, then by day and time
-    availableBlocks.sort((a, b) => {
+    consolidatedBlocks.sort((a, b) => {
         if (a.isPreferred && !b.isPreferred) return -1;
         if (!a.isPreferred && b.isPreferred) return 1;
         if (a.day !== b.day) return a.day - b.day;
         return a.startTime - b.startTime;
     });
     
-    return availableBlocks;
+    return consolidatedBlocks;
+}
+
+function consolidateTimeBlocks(blocks) {
+    if (blocks.length === 0) return blocks;
+    
+    console.log('🔗 Consolidating time blocks...');
+    
+    // Group blocks by day and preference type
+    const blocksByDay = {};
+    
+    blocks.forEach(block => {
+        const key = `${block.day}-${block.isPreferred ? 'preferred' : 'available'}`;
+        if (!blocksByDay[key]) {
+            blocksByDay[key] = [];
+        }
+        blocksByDay[key].push(block);
+    });
+    
+    const consolidatedBlocks = [];
+    
+    // Process each day/preference group
+    Object.keys(blocksByDay).forEach(key => {
+        const dayBlocks = blocksByDay[key];
+        
+        // Sort blocks by start time
+        dayBlocks.sort((a, b) => a.startTime - b.startTime);
+        
+        console.log(`📅 Processing ${dayBlocks.length} blocks for ${key}`);
+        
+        let currentBlock = { ...dayBlocks[0] };
+        
+        for (let i = 1; i < dayBlocks.length; i++) {
+            const nextBlock = dayBlocks[i];
+            
+            // Check if blocks are adjacent or overlapping
+            if (nextBlock.startTime <= currentBlock.endTime) {
+                // Merge blocks - extend the end time to the maximum
+                console.log(`🔗 Merging blocks: ${formatTimeSlot(currentBlock.startTime)}-${formatTimeSlot(currentBlock.endTime)} + ${formatTimeSlot(nextBlock.startTime)}-${formatTimeSlot(nextBlock.endTime)}`);
+                currentBlock.endTime = Math.max(currentBlock.endTime, nextBlock.endTime);
+            } else {
+                // Blocks are not adjacent, save current and start new
+                console.log(`✅ Completed block: ${formatTimeSlot(currentBlock.startTime)} - ${formatTimeSlot(currentBlock.endTime)}`);
+                consolidatedBlocks.push(currentBlock);
+                currentBlock = { ...nextBlock };
+            }
+        }
+        
+        // Add the last block
+        console.log(`✅ Final block: ${formatTimeSlot(currentBlock.startTime)} - ${formatTimeSlot(currentBlock.endTime)}`);
+        consolidatedBlocks.push(currentBlock);
+    });
+    
+    return consolidatedBlocks;
 }
 
 function displayAvailableTimeBlocks(blocks, weekStart) {
@@ -867,6 +924,11 @@ function displayAvailableTimeBlocks(blocks, weekStart) {
         const startTime = formatTimeSlot(block.startTime);
         const endTime = formatTimeSlot(block.endTime);
         const dayName = daysOfWeek[block.day];
+        
+        // Calculate duration in hours
+        const durationSlots = block.endTime - block.startTime;
+        const durationHours = durationSlots / 2; // 2 slots per hour
+        const durationText = durationHours === 1 ? '1 hour' : `${durationHours} hours`;
         
         // Get the actual date for this day
         const date = new Date(weekStart);
@@ -878,6 +940,7 @@ function displayAvailableTimeBlocks(blocks, weekStart) {
                 <div class="time-info">
                     <div class="time-day">${dayName}, ${dateString}</div>
                     <div class="time-range">${startTime} - ${endTime}</div>
+                    <div class="time-duration">${durationText} available</div>
                 </div>
                 <div class="time-type ${block.isPreferred ? 'preferred' : 'available'}">
                     ${block.isPreferred ? 'Preferred' : 'Available'}
