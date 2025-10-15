@@ -635,6 +635,8 @@ window.removeMember = removeMember;
 // Edit Group Functions
 let currentEditGroupId = null;
 
+}
+
 // Find Available Times Modal Functions
 async function findAvailableTimes(groupId) {
     currentFindTimesGroup = groupId;
@@ -665,6 +667,9 @@ async function findAvailableTimes(groupId) {
         showError('Failed to load group details');
     }
 }
+
+// Make functions globally accessible for onclick handlers
+window.findAvailableTimes = findAvailableTimes;
 
 async function searchAvailableTimes() {
     if (!currentFindTimesGroup) return;
@@ -1222,6 +1227,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
     
+    // Periodic check to ensure input stays enabled when it should be
+    setInterval(() => {
+        if (currentChatGroup && chatInput && chatInput.disabled && !isOffline) {
+            console.log('🔧 Auto-fixing disabled chat input...');
+            window.forceEnableChatInput();
+        }
+    }, 5000); // Check every 5 seconds
+    
     // Auth state listener
     onAuthStateChanged(auth, async (user) => {
         if (user) {
@@ -1307,16 +1320,44 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Add click event listener to chat input for debugging
-    chatInput?.addEventListener('click', () => {
+    chatInput?.addEventListener('click', (e) => {
         console.log('Chat input clicked');
         console.log('Input disabled:', chatInput.disabled);
         console.log('Current chat group:', currentChatGroup);
+        console.log('Event target:', e.target);
+        console.log('Event current target:', e.currentTarget);
+        
+        // If input is disabled but we have a chat group, force enable it
+        if (chatInput.disabled && currentChatGroup) {
+            console.log('Input was disabled but we have a chat group, force enabling...');
+            window.forceEnableChatInput();
+        }
     });
     
     // Add focus event listener for debugging
     chatInput?.addEventListener('focus', () => {
         console.log('Chat input focused');
     });
+    
+    // Add event listener to detect when input gets disabled
+    if (chatInput) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'disabled') {
+                    console.log('Chat input disabled state changed:', chatInput.disabled);
+                    console.log('Current chat group when disabled changed:', currentChatGroup);
+                    
+                    // If input got disabled but we have a chat group, log warning
+                    if (chatInput.disabled && currentChatGroup) {
+                        console.warn('⚠️ Chat input was disabled while having a chat group!');
+                        console.log('Call forceEnableChatInput() to fix this');
+                    }
+                }
+            });
+        });
+        
+        observer.observe(chatInput, { attributes: true });
+    }
     
     // Modal event listeners
     closeModals.forEach(closeBtn => {
