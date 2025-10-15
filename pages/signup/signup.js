@@ -37,17 +37,20 @@ async function handleSignup(username, email, password, confirmPassword) {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
-        // Create user profile in Firestore with username
-        await setDoc(doc(db, 'users', user.uid), {
+        // Create user data object
+        const userData = {
             username: username,
             email: email,
             createdAt: new Date(),
             friends: [],
             groups: []
-        });
+        };
+        
+        // Create user profile in Firestore with username
+        await setDoc(doc(db, 'users', user.uid), userData);
         
         console.log('User created:', user);
-        showSuccess('Account created successfully! Welcome to the party!', signupForm);
+        showSuccess('Account created successfully! Welcome to the party! 🎲', signupForm);
         
         // Redirect to dashboard after a brief delay
         setTimeout(() => {
