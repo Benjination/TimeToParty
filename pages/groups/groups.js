@@ -706,6 +706,7 @@ async function searchAvailableTimes() {
     if (!currentFindTimesGroup) return;
     
     const sessionDuration = parseInt(sessionDurationSelect.value);
+    console.log('🔍 Starting availability search for duration:', sessionDuration, 'hours');
     
     try {
         addLoadingState(findAvailableTimesBtn);
@@ -719,6 +720,7 @@ async function searchAvailableTimes() {
         
         const group = groupResult.data;
         const memberIds = group.members;
+        console.log('👥 Found', memberIds.length, 'members in group');
         
         // Get current week start (Sunday)
         const today = new Date();
@@ -731,6 +733,8 @@ async function searchAvailableTimes() {
         const weekId = currentWeekStart.toISOString().split('T')[0];
         const memberAvailabilities = {};
         
+        console.log('📅 Loading availability for week:', weekId);
+        
         for (const memberId of memberIds) {
             try {
                 const availabilityRef = doc(db, 'availability', `${memberId}_${weekId}`);
@@ -741,14 +745,26 @@ async function searchAvailableTimes() {
                 } else {
                     memberAvailabilities[memberId] = {};
                 }
+                console.log('✅ Loaded availability for member:', memberId, 'slots:', Object.keys(memberAvailabilities[memberId]).length);
             } catch (error) {
-                console.error(`Error loading availability for member ${memberId}:`, error);
+                console.error(`❌ Error loading availability for member ${memberId}:`, error);
                 memberAvailabilities[memberId] = {};
             }
         }
         
+        console.log('🔍 Starting time block search...');
+        
+        // Add timeout to prevent freezing
+        const startTime = Date.now();
+        const maxProcessingTime = 5000; // 5 seconds max
+        
         // Find available time blocks
-        const availableBlocks = findAvailableTimeBlocks(memberAvailabilities, memberIds, sessionDuration);
+        const availableBlocks = findAvailableTimeBlocks(memberAvailabilities, memberIds, sessionDuration, maxProcessingTime);
+        
+        const processingTime = Date.now() - startTime;
+        console.log('⏱️ Processing took', processingTime, 'ms');
+        
+        console.log('✅ Found', availableBlocks.length, 'available time blocks');
         
         // Display results
         if (availableBlocks.length > 0) {
@@ -761,30 +777,48 @@ async function searchAvailableTimes() {
         }
         
     } catch (error) {
-        console.error('Error searching for available times:', error);
+        console.error('❌ Error searching for available times:', error);
         showError('Failed to search for available times. Please try again.');
     } finally {
         removeLoadingState(findAvailableTimesBtn, 'Find Available Times');
     }
 }
 
-function findAvailableTimeBlocks(memberAvailabilities, memberIds, sessionDurationHours) {
+function findAvailableTimeBlocks(memberAvailabilities, memberIds, sessionDurationHours, maxProcessingTime = 5000) {
+    console.log('🔍 findAvailableTimeBlocks called with:', {
+        memberCount: memberIds.length,
+        sessionDurationHours,
+        memberIds
+    });
+    
+    const processingStartTime = Date.now();
     const availableBlocks = [];
     const slotsNeeded = sessionDurationHours * 2; // 2 slots per hour (30-minute slots)
     
+    console.log('⏰ Need', slotsNeeded, 'consecutive slots for', sessionDurationHours, 'hour session');
+    
     // Check each day of the week
     for (let day = 0; day < 7; day++) {
+        console.log(`📅 Checking day ${day} (${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]})`);
+        
+        // Check processing time to prevent freezing
+        if (Date.now() - processingStartTime > maxProcessingTime) {
+            console.warn('⚠️ Processing timeout reached, returning partial results');
+            break;
+        }
+        
         // Check each possible starting time slot
-        for (let startTime = 0; startTime <= 48 - slotsNeeded; startTime++) {
+        for (let slotStartTime = 0; slotStartTime <= 48 - slotsNeeded; slotStartTime++) {
             let allAvailable = true;
             let hasPreferred = false;
             
             // Check if all members are available for this time block
-            for (let slot = startTime; slot < startTime + slotsNeeded; slot++) {
+            for (let slot = slotStartTime; slot < slotStartTime + slotsNeeded; slot++) {
                 const slotKey = `${day}-${slot}`;
                 
                 for (const memberId of memberIds) {
-                    const availability = memberAvailabilities[memberId][slotKey];
+                    const memberAvailability = memberAvailabilities[memberId] || {};
+                    const availability = memberAvailability[slotKey];
                     
                     // If any member is unavailable or has no availability set, this block is not available
                     if (!availability || availability === 'unavailable') {
@@ -802,15 +836,18 @@ function findAvailableTimeBlocks(memberAvailabilities, memberIds, sessionDuratio
             }
             
             if (allAvailable) {
+                console.log(`✅ Found available block: Day ${day}, ${formatTimeSlot(slotStartTime)} - ${formatTimeSlot(slotStartTime + slotsNeeded)}`);
                 availableBlocks.push({
                     day,
-                    startTime,
-                    endTime: startTime + slotsNeeded,
+                    startTime: slotStartTime,
+                    endTime: slotStartTime + slotsNeeded,
                     isPreferred: hasPreferred
                 });
             }
         }
     }
+    
+    console.log('📊 Found', availableBlocks.length, 'total available blocks');
     
     // Sort blocks: preferred first, then by day and time
     availableBlocks.sort((a, b) => {
@@ -1338,7 +1375,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Chat event listeners
-    closeChatBtn?.addEventListener('click', closePartyChat);
+    // closeChatBtn?.addEventListener('click', closePartyChat); // No close button in HTML currently
     
     chatForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
