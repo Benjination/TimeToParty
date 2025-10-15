@@ -599,6 +599,18 @@
     border-radius: 5px;
     background: rgba(255, 255, 255, 0.9);
     font-size: 0.9rem;
+    cursor: text;
+    pointer-events: auto;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+}
+
+.chat-input-container input:disabled {
+    background: rgba(255, 255, 255, 0.5);
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 .chat-input-container input:focus {

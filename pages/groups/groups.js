@@ -265,6 +265,8 @@ async function viewGroupDetails(groupId) {
 
 // Chat Functions
 function updateOfflineStatus() {
+    console.log('updateOfflineStatus called, isOffline:', isOffline);
+    
     if (isOffline) {
         // Update connection status indicator
         if (connectionStatus) {
@@ -278,30 +280,35 @@ function updateOfflineStatus() {
             reconnectBtn.style.display = 'inline-block';
         }
         
-        chatInput.placeholder = '🔌 Offline - Check your connection';
-        chatInput.disabled = true;
-        const submitButton = chatForm.querySelector('button[type="submit"]');
-        if (submitButton) {
-            submitButton.disabled = true;
+        // Only disable input if we have a current chat group
+        if (currentChatGroup && chatInput) {
+            chatInput.placeholder = '🔌 Offline - Check your connection';
+            chatInput.disabled = true;
+            const submitButton = chatForm.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true;
+            }
         }
         
         // Show offline indicator in chat
-        const offlineMessage = document.createElement('div');
-        offlineMessage.className = 'offline-indicator';
-        offlineMessage.innerHTML = '🔌 You are currently offline. Messages will load when connection is restored. <button onclick="manualReconnect()" style="margin-left: 10px; padding: 5px 10px; background: orange; border: none; border-radius: 3px; color: white; cursor: pointer;">Try Reconnect</button>';
-        offlineMessage.style.cssText = `
-            background: rgba(255, 165, 0, 0.2);
-            border: 1px solid orange;
-            padding: 10px;
-            margin: 10px;
-            border-radius: 5px;
-            text-align: center;
-            color: orange;
-        `;
-        
-        // Add to top of chat messages if not already present
-        if (!document.querySelector('.offline-indicator')) {
-            chatMessages.insertBefore(offlineMessage, chatMessages.firstChild);
+        if (currentChatGroup && chatMessages) {
+            const offlineMessage = document.createElement('div');
+            offlineMessage.className = 'offline-indicator';
+            offlineMessage.innerHTML = '🔌 You are currently offline. Messages will load when connection is restored. <button onclick="manualReconnect()" style="margin-left: 10px; padding: 5px 10px; background: orange; border: none; border-radius: 3px; color: white; cursor: pointer;">Try Reconnect</button>';
+            offlineMessage.style.cssText = `
+                background: rgba(255, 165, 0, 0.2);
+                border: 1px solid orange;
+                padding: 10px;
+                margin: 10px;
+                border-radius: 5px;
+                text-align: center;
+                color: orange;
+            `;
+            
+            // Add to top of chat messages if not already present
+            if (!document.querySelector('.offline-indicator')) {
+                chatMessages.insertBefore(offlineMessage, chatMessages.firstChild);
+            }
         }
     } else {
         // Update connection status indicator
@@ -316,11 +323,17 @@ function updateOfflineStatus() {
             reconnectBtn.style.display = 'none';
         }
         
-        chatInput.placeholder = 'Type your message...';
-        chatInput.disabled = false;
-        const submitButton = chatForm.querySelector('button[type="submit"]');
-        if (submitButton) {
-            submitButton.disabled = false;
+        // Only enable input if we have a current chat group
+        if (currentChatGroup && chatInput) {
+            chatInput.placeholder = 'Type your message...';
+            chatInput.disabled = false;
+            chatInput.style.pointerEvents = 'auto';
+            chatInput.style.cursor = 'text';
+            const submitButton = chatForm.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = false;
+            }
+            console.log('Input re-enabled due to online status');
         }
         
         // Remove offline indicator
@@ -546,7 +559,10 @@ function switchToGroup(groupId) {
         chatMessages.innerHTML = '<div class="no-chat-selected"><p>👆 Select a party from the dropdown to start chatting!</p></div>';
         chatInput.disabled = true;
         chatInput.placeholder = 'Select a party to start chatting...';
-        chatForm.querySelector('button').disabled = true;
+        const submitButton = chatForm.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = true;
+        }
         return;
     }
 
@@ -570,16 +586,28 @@ function switchToGroup(groupId) {
         // Show loading state
         chatMessages.innerHTML = '<div class="loading-messages">📜 Loading messages...</div>';
         
-        // Enable input
-        chatInput.disabled = false;
-        chatInput.placeholder = 'Type your message...';
+        // Force enable input (don't check offline status here)
+        if (chatInput) {
+            chatInput.disabled = false;
+            chatInput.placeholder = 'Type your message...';
+            chatInput.style.pointerEvents = 'auto'; // Ensure pointer events work
+            chatInput.style.cursor = 'text'; // Show text cursor
+            console.log('Chat input enabled. Disabled status:', chatInput.disabled);
+        }
+        
         const submitButton = chatForm.querySelector('button[type="submit"]');
         if (submitButton) {
             submitButton.disabled = false;
+            console.log('Submit button enabled. Disabled status:', submitButton.disabled);
         }
         
-        console.log('Input disabled status:', chatInput.disabled);
-        console.log('Button disabled status:', submitButton ? submitButton.disabled : 'button not found');
+        // Test if input is clickable
+        setTimeout(() => {
+            if (chatInput) {
+                chatInput.focus();
+                console.log('Attempted to focus input after 500ms');
+            }
+        }, 500);
         
         // Start listening to messages
         listenToMessages();
@@ -1008,6 +1036,72 @@ window.manualReconnect = async function() {
     }
 };
 
+// Force enable chat input function
+window.forceEnableChatInput = function() {
+    console.log('Force enabling chat input...');
+    
+    if (!chatInput) {
+        console.error('Chat input element not found!');
+        return false;
+    }
+    
+    // Force enable the input
+    chatInput.disabled = false;
+    chatInput.style.pointerEvents = 'auto';
+    chatInput.style.cursor = 'text';
+    chatInput.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+    chatInput.placeholder = 'Type your message...';
+    
+    // Enable submit button
+    const submitButton = chatForm ? chatForm.querySelector('button[type="submit"]') : null;
+    if (submitButton) {
+        submitButton.disabled = false;
+    }
+    
+    // Try to focus
+    setTimeout(() => {
+        chatInput.focus();
+        console.log('Input focus attempted');
+    }, 100);
+    
+    console.log('Chat input force enabled');
+    return true;
+};
+
+// Add debug function to test input state
+window.debugChatInput = function() {
+    console.log('=== CHAT INPUT DEBUG ===');
+    console.log('Chat input element:', chatInput);
+    console.log('Input disabled:', chatInput ? chatInput.disabled : 'element not found');
+    console.log('Input value:', chatInput ? chatInput.value : 'N/A');
+    console.log('Input placeholder:', chatInput ? chatInput.placeholder : 'N/A');
+    console.log('Input style.pointerEvents:', chatInput ? chatInput.style.pointerEvents : 'N/A');
+    console.log('Input style.cursor:', chatInput ? chatInput.style.cursor : 'N/A');
+    console.log('Current chat group:', currentChatGroup);
+    console.log('Current group ID:', currentGroupId);
+    console.log('Is offline:', isOffline);
+    console.log('Current user:', currentUser ? currentUser.uid : 'Not logged in');
+    
+    if (chatInput) {
+        console.log('Attempting to focus input...');
+        chatInput.focus();
+        console.log('Active element after focus:', document.activeElement);
+        console.log('Is input focused?', document.activeElement === chatInput);
+    }
+    
+    const submitButton = chatForm ? chatForm.querySelector('button[type="submit"]') : null;
+    console.log('Submit button:', submitButton);
+    console.log('Submit button disabled:', submitButton ? submitButton.disabled : 'button not found');
+    
+    return {
+        element: chatInput,
+        disabled: chatInput ? chatInput.disabled : null,
+        focused: document.activeElement === chatInput,
+        currentGroup: currentChatGroup,
+        offline: isOffline
+    };
+};
+
 // Comprehensive Firebase diagnostic function
 window.diagnoseFirebase = async function() {
     console.log('🔍 FIREBASE DIAGNOSTIC REPORT');
@@ -1109,12 +1203,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.diagnoseFirebase();
                 console.log('💡 TROUBLESHOOTING COMMANDS:');
                 console.log('   - diagnoseFirebase() - Run full diagnostic');
+                console.log('   - debugChatInput() - Debug chat input state');
+                console.log('   - forceEnableChatInput() - Force enable input');
                 console.log('   - manualReconnect() - Try to reconnect');
                 console.log('   - Check Firebase Console for your project');
                 console.log('   - Check browser Network tab for failed requests');
             }
         });
     }
+    
+    // Initialize chat input state
+    setTimeout(() => {
+        if (chatInput) {
+            console.log('Initializing chat input state...');
+            chatInput.style.pointerEvents = 'auto';
+            chatInput.style.cursor = 'text';
+            console.log('Chat input initialized');
+        }
+    }, 1000);
     
     // Auth state listener
     onAuthStateChanged(auth, async (user) => {
