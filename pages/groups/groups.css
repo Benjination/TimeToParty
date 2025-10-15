@@ -1,4 +1,12 @@
 /* Groups Page Specific Styles */
+
+/* Override container width for groups page */
+.container {
+    max-width: none !important;
+    width: 100%;
+    padding: 20px 40px; /* More horizontal padding for better spacing */
+}
+
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -18,9 +26,24 @@
     gap: 15px;
 }
 
+/* Main Content Layout */
+.main-content {
+    display: flex;
+    gap: 3rem; /* Increased gap for better spacing */
+    height: calc(100vh - 140px); /* Account for header */
+    overflow: hidden;
+    max-width: none; /* Use full width */
+    margin: 0;
+    padding: 0; /* Remove padding since container now handles it */
+}
+
 .groups-content {
+    flex: 1;
     display: grid;
     gap: 40px;
+    overflow-y: auto;
+    padding-right: 1rem;
+    min-width: 0; /* Allow content to shrink */
 }
 
 /* Create Group Section */
@@ -64,8 +87,8 @@
 
 .groups-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 30px;
 }
 
 .group-card {
@@ -115,14 +138,14 @@
 }
 
 .group-actions {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
 
 .group-actions button {
-    flex: 1;
     padding: 10px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .loading-message,
@@ -367,89 +390,201 @@
     }
 }
 
-/* Party Chat Styles */
+/* Party Chat Sidebar Styles */
 .party-chat-section {
-    margin-top: 2rem;
+    width: 320px;
+    min-width: 320px;
     background: rgba(139, 69, 19, 0.15);
     border: 2px solid #8b4513;
     border-radius: 10px;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
+    height: fit-content;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
 }
 
 .chat-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     background: #8b4513;
     color: #d4af37;
     border-radius: 8px 8px 0 0;
+    flex-shrink: 0;
 }
 
-.chat-header h3 {
+.chat-header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.chat-header-content h3 {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.connection-status {
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.connection-status.online {
+    color: #32cd32;
+}
+
+.connection-status.offline {
+    color: #ff6b6b;
+}
+
+.group-selector {
+    background: rgba(244, 228, 193, 0.9);
+    border: 2px solid #d4af37;
+    color: #2c1810;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    width: 100%;
+    cursor: pointer;
+}
+
+.group-selector:focus {
+    outline: none;
+    border-color: #f4e4c1;
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
 }
 
 .chat-container {
-    height: 400px;
+    flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 500px;
+    max-height: calc(100vh - 200px);
+    transition: all 0.3s ease;
+}
+
+.chat-container.minimized {
+    min-height: 0;
+    max-height: 0;
+    overflow: hidden;
 }
 
 .chat-messages {
     flex: 1;
-    padding: 1rem;
+    padding: 0.75rem;
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.95);
     min-height: 300px;
-    max-height: 300px;
+}
+
+.no-chat-selected {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+    font-style: italic;
+    text-align: center;
+}
+
+.no-chat-selected p {
+    margin: 0;
+    font-size: 1rem;
+    padding: 0 1rem;
+}
+
+.older-messages-indicator {
+    text-align: center;
+    padding: 0.5rem;
+    background: rgba(139, 69, 19, 0.1);
+    border: 1px solid rgba(139, 69, 19, 0.2);
+    border-radius: 5px;
+    margin-bottom: 0.75rem;
+    color: #8b4513;
+    font-style: italic;
+}
+
+.older-messages-indicator small {
+    font-size: 0.75rem;
+}
+
+.no-messages {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+    font-style: italic;
+    text-align: center;
+}
+
+.loading-messages {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #8b4513;
+    font-style: italic;
+    text-align: center;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
 }
 
 .message {
-    margin-bottom: 1rem;
-    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
     background: rgba(218, 165, 32, 0.1);
     border-left: 3px solid #8b4513;
     border-radius: 5px;
+    font-size: 0.9rem;
 }
 
 .message.own-message {
     background: rgba(139, 69, 19, 0.1);
     border-left-color: #d4af37;
-    margin-left: 2rem;
+    margin-left: 1rem;
 }
 
 .message-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .message-author {
     font-weight: bold;
     color: #8b4513;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
 }
 
 .message-time {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: #666;
 }
 
 .message-content {
-    color: #333;
-    line-height: 1.4;
-    word-wrap: break-word;
+    line-height: 1.3;
+    font-size: 0.85rem;
 }
 
 .chat-input-container {
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 0 0 8px 8px;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(139, 69, 19, 0.3);
+    flex-shrink: 0;
 }
 
 .chat-input-container form {
@@ -459,15 +594,29 @@
 
 .chat-input-container input {
     flex: 1;
-    padding: 0.75rem;
+    padding: 0.5rem;
     border: 2px solid #8b4513;
     border-radius: 5px;
-    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+}
+
+.chat-input-container input:focus {
+    outline: none;
+    border-color: #d4af37;
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
 }
 
 .chat-input-container button {
-    padding: 0.75rem 1.5rem;
-    white-space: nowrap;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    min-width: auto;
+}
+
+.message-content {
+    color: #333;
+    line-height: 1.4;
+    word-wrap: break-word;
 }
 
 .no-messages {
@@ -478,27 +627,44 @@
 }
 
 @media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+        height: auto;
+    }
+    
     .party-chat-section {
-        margin: 1rem;
+        width: 100%;
+        min-width: auto;
+        order: -1; /* Put chat at top on mobile */
+        margin-bottom: 1rem;
+    }
+    
+    .groups-content {
+        padding-right: 0;
     }
     
     .chat-container {
-        height: 350px;
-    }
-    
-    .chat-messages {
         min-height: 250px;
         max-height: 250px;
     }
     
-    .chat-header {
-        flex-direction: column;
-        gap: 0.5rem;
-        text-align: center;
+    .chat-header-content {
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .chat-header-content h3 {
+        font-size: 1rem;
+    }
+    
+    .group-selector {
+        min-width: 150px;
+        width: auto;
     }
     
     .message.own-message {
-        margin-left: 1rem;
+        margin-left: 0.5rem;
     }
     
     .invite-image {
@@ -513,4 +679,136 @@
     .invite-message {
         font-size: 1rem;
     }
+}
+
+/* Find Available Times Modal Styles */
+.find-times-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.find-times-header .invite-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+}
+
+.find-times-header h2 {
+    color: #d4af37;
+    margin-bottom: 0.5rem;
+}
+
+.find-times-message {
+    color: #e8dcc6;
+    margin-bottom: 0;
+}
+
+.duration-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.duration-selection label {
+    font-weight: bold;
+    color: #d4af37;
+}
+
+.duration-selector {
+    padding: 0.75rem;
+    border: 2px solid #8b4513;
+    border-radius: 8px;
+    background: rgba(139, 69, 19, 0.2);
+    color: #e8dcc6;
+    font-size: 1rem;
+}
+
+.duration-selector:focus {
+    outline: none;
+    border-color: #d4af37;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
+}
+
+.available-times-results {
+    margin-top: 2rem;
+}
+
+.available-times-results h3 {
+    color: #d4af37;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.times-list {
+    max-height: 300px;
+    overflow-y: auto;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.time-slot-result {
+    background: rgba(139, 69, 19, 0.3);
+    border: 2px solid #d4af37;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.time-slot-result.preferred {
+    border-color: #32cd32;
+    background: rgba(50, 205, 50, 0.1);
+}
+
+.time-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.time-day {
+    font-weight: bold;
+    color: #d4af37;
+}
+
+.time-range {
+    color: #e8dcc6;
+    font-size: 0.9rem;
+}
+
+.time-type {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    text-align: center;
+    min-width: 80px;
+}
+
+.time-type.preferred {
+    background: rgba(50, 205, 50, 0.3);
+    color: #32cd32;
+    border: 1px solid #32cd32;
+}
+
+.time-type.available {
+    background: rgba(212, 175, 55, 0.3);
+    color: #d4af37;
+    border: 1px solid #d4af37;
+}
+
+.no-times-found {
+    text-align: center;
+    padding: 2rem;
+    color: #e8dcc6;
+    background: rgba(139, 69, 19, 0.2);
+    border-radius: 8px;
+    border: 2px dashed #8b4513;
+}
+
+.no-times-found p {
+    margin: 0;
+    line-height: 1.5;
 }

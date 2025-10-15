@@ -17,71 +17,83 @@
             </div>
         </header>
         
-        <div class="groups-content">
-            <!-- Create Group Section -->
-            <div class="create-group-section">
-                <h2>Start a New Adventure</h2>
-                <div class="create-group-form">
-                    <form id="create-group-form">
-                        <div class="input-group">
-                            <label for="group-name">Party Name</label>
-                            <input type="text" id="group-name" placeholder="Enter your party name" required>
-                        </div>
-                        <div class="input-group">
-                            <label for="group-description">Adventure Description</label>
-                            <textarea id="group-description" placeholder="Describe your campaign or adventure..." rows="3"></textarea>
-                        </div>
-                        <div class="input-group">
-                            <label for="max-players">Maximum Players</label>
-                            <select id="max-players" required>
-                                <option value="3">3 Players</option>
-                                <option value="4">4 Players</option>
-                                <option value="5" selected>5 Players</option>
-                                <option value="6">6 Players</option>
-                                <option value="8">8 Players</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn-primary">Create Party</button>
-                    </form>
+        <div class="main-content">
+            <!-- Left Column: Groups Content -->
+            <div class="groups-content">
+                <!-- Create Group Section -->
+                <div class="create-group-section">
+                    <h2>Start a New Adventure</h2>
+                    <div class="create-group-form">
+                        <form id="create-group-form">
+                            <div class="input-group">
+                                <label for="group-name">Party Name</label>
+                                <input type="text" id="group-name" placeholder="Enter your party name" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="group-description">Adventure Description</label>
+                                <textarea id="group-description" placeholder="Describe your campaign or adventure..." rows="3"></textarea>
+                            </div>
+                            <div class="input-group">
+                                <label for="max-players">Maximum Players</label>
+                                <select id="max-players" required>
+                                    <option value="3">3 Players</option>
+                                    <option value="4">4 Players</option>
+                                    <option value="5" selected>5 Players</option>
+                                    <option value="6">6 Players</option>
+                                    <option value="8">8 Players</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-primary">Create Party</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Join Group Section -->
-            <div class="join-group-section">
-                <h2>Join an Existing Party</h2>
-                <div class="join-group-form">
-                    <form id="join-group-form">
-                        <div class="input-group">
-                            <label for="group-id">Party ID</label>
-                            <input type="text" id="group-id" placeholder="Enter 6-digit party ID" maxlength="6" required>
-                        </div>
-                        <button type="submit" class="btn-primary">Join Party</button>
-                    </form>
+                <!-- Join Group Section -->
+                <div class="join-group-section">
+                    <h2>Join an Existing Party</h2>
+                    <div class="join-group-form">
+                        <form id="join-group-form">
+                            <div class="input-group">
+                                <label for="group-id">Party ID</label>
+                                <input type="text" id="group-id" placeholder="Enter 6-digit party ID" maxlength="6" required>
+                            </div>
+                            <button type="submit" class="btn-primary">Join Party</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
 
-            <!-- User's Groups -->
-            <div class="user-groups-section">
-                <h2>Your Current Parties</h2>
-                <div id="groups-list" class="groups-list">
-                    <div class="loading-message">Loading your parties...</div>
+                <!-- User's Groups -->
+                <div class="user-groups-section">
+                    <h2>Your Current Parties</h2>
+                    <div id="groups-list" class="groups-list">
+                        <div class="loading-message">Loading your parties...</div>
+                    </div>
                 </div>
             </div>
             
-            <!-- Party Chat -->
-            <div id="party-chat-section" class="party-chat-section" style="display: none;">
+            <!-- Right Column: Persistent Party Chat -->
+            <div id="party-chat-section" class="party-chat-section">
                 <div class="chat-header">
-                    <h3 id="chat-party-name">Party Chat</h3>
-                    <button id="close-chat" class="btn-secondary">Close Chat</button>
+                    <div class="chat-header-content">
+                        <h3>📱 Party Chat</h3>
+                        <div id="connection-status" class="connection-status online">🟢</div>
+                        <button id="reconnect-btn" class="btn-secondary" style="font-size: 0.8rem; padding: 4px 8px; display: none;">Reconnect</button>
+                        <select id="chat-group-selector" class="group-selector">
+                            <option value="">Select a party...</option>
+                        </select>
+                    </div>
+                    <button id="minimize-chat" class="btn-secondary">−</button>
                 </div>
-                <div class="chat-container">
+                <div id="chat-container" class="chat-container">
                     <div id="chat-messages" class="chat-messages">
-                        <!-- Messages will be populated here -->
+                        <div class="no-chat-selected">
+                            <p>👆 Select a party to start chatting!</p>
+                        </div>
                     </div>
                     <div class="chat-input-container">
                         <form id="chat-form">
-                            <input type="text" id="chat-input" placeholder="Type your message..." maxlength="500" required>
-                            <button type="submit" class="btn-primary">Send</button>
+                            <input type="text" id="chat-input" placeholder="Select a party to start chatting..." disabled required>
+                            <button type="submit" class="btn-primary" disabled>Send</button>
                         </form>
                     </div>
                 </div>
@@ -155,6 +167,39 @@
                     <button type="button" class="btn-secondary edit-group-close">Cancel</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Find Available Times Modal -->
+    <div id="find-times-modal" class="modal">
+        <div class="modal-content">
+            <span class="close find-times-close">&times;</span>
+            <div class="find-times-header">
+                <img src="../../Images/DungeonMaster.png" alt="Dungeon Master" class="invite-image">
+                <h2>When can we play?</h2>
+                <p class="find-times-message">Choose your session duration to find available time slots</p>
+            </div>
+            <div class="duration-selection">
+                <label for="session-duration">Session Duration:</label>
+                <select id="session-duration" class="duration-selector">
+                    <option value="1">1 Hour</option>
+                    <option value="2" selected>2 Hours</option>
+                    <option value="3">3 Hours</option>
+                    <option value="4">4 Hours</option>
+                    <option value="5">5 Hours</option>
+                    <option value="6">6 Hours</option>
+                </select>
+                <button id="find-available-times-btn" class="btn-primary">Find Available Times</button>
+            </div>
+            <div id="available-times-results" class="available-times-results" style="display: none;">
+                <h3>Available Time Slots</h3>
+                <div id="times-list" class="times-list">
+                    <!-- Available times will be populated here -->
+                </div>
+            </div>
+            <div id="no-times-found" class="no-times-found" style="display: none;">
+                <p>No available time slots found for the selected duration. Try a shorter session or check if all party members have set their availability.</p>
+            </div>
         </div>
     </div>
 
