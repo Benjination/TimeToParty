@@ -44,6 +44,7 @@
     overflow-y: auto;
     padding-right: 1rem;
     min-width: 0; /* Allow content to shrink */
+    padding-bottom: 2rem; /* Add bottom padding to prevent overlap */
 }
 
 /* Create Group Section */
@@ -54,6 +55,9 @@
     border-radius: 15px;
     border: 2px solid #d4af37;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    margin-bottom: 2rem; /* Ensure proper spacing from other elements */
+    position: relative; /* Ensure proper stacking context */
+    z-index: 0; /* Lower than chat section */
 }
 
 .create-group-section h2,
@@ -398,12 +402,13 @@
     border: 2px solid #8b4513;
     border-radius: 10px;
     height: fit-content;
-    max-height: calc(100vh - 200px); /* Ensure it doesn't exceed viewport */
+    max-height: calc(100vh - 250px); /* Increased space to prevent overlap */
     display: flex;
     flex-direction: column;
     transition: all 0.3s ease;
     position: relative; /* Ensure proper stacking */
     z-index: 1; /* Prevent overlap */
+    align-self: flex-start; /* Stick to top of flex container */
 }
 
 .chat-header {
@@ -694,6 +699,8 @@
     .groups-content {
         padding-right: 0;
         order: 1; /* Ensure groups content comes after chat */
+        padding-top: 1rem; /* Add top padding for separation */
+        gap: 20px; /* Reduce gap on mobile for better spacing */
     }
     
     .chat-container {
