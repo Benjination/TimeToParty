@@ -67,6 +67,21 @@ const chatMessages = document.getElementById('chat-messages');
 const chatForm = document.getElementById('chat-form');
 const chatInput = document.getElementById('chat-input');
 
+// Debug DOM element availability
+console.log('🔍 DOM Elements Debug at initialization:');
+console.log('chatGroupSelector found:', !!chatGroupSelector);
+console.log('chatGroupSelector element:', chatGroupSelector);
+console.log('chatInput found:', !!chatInput);
+console.log('chatForm found:', !!chatForm);
+if (chatGroupSelector) {
+    console.log('chatGroupSelector tagName:', chatGroupSelector.tagName);
+    console.log('chatGroupSelector id:', chatGroupSelector.id);
+    console.log('chatGroupSelector classList:', Array.from(chatGroupSelector.classList));
+    console.log('chatGroupSelector innerHTML:', chatGroupSelector.innerHTML);
+} else {
+    console.error('❌ chatGroupSelector not found!');
+}
+
 let currentUser = null;
 let currentChatGroup = null;
 let currentFindTimesGroup = null;
@@ -1404,15 +1419,35 @@ document.addEventListener('DOMContentLoaded', function() {
     reconnectBtn?.addEventListener('click', window.manualReconnect);
     
     // Chat event listeners
-    chatGroupSelector?.addEventListener('change', (e) => {
-        const selectedGroupId = e.target.value;
-        console.log('Chat group selector changed to:', selectedGroupId);
-        console.log('Event target:', e.target);
-        console.log('Event target value:', e.target.value);
-        console.log('Selected options:', e.target.selectedOptions);
-        console.log('Calling switchToGroup with:', selectedGroupId);
-        switchToGroup(selectedGroupId);
-    });
+    console.log('🔗 Setting up event listeners...');
+    console.log('chatGroupSelector at event listener setup:', chatGroupSelector);
+    console.log('chatGroupSelector exists:', !!chatGroupSelector);
+    
+    if (chatGroupSelector) {
+        console.log('✅ About to add change event listener to chatGroupSelector');
+        chatGroupSelector.addEventListener('change', (e) => {
+            console.log('🚨 CHANGE EVENT FIRED! 🚨');
+            const selectedGroupId = e.target.value;
+            console.log('Chat group selector changed to:', selectedGroupId);
+            console.log('Event target:', e.target);
+            console.log('Event target value:', e.target.value);
+            console.log('Selected options:', e.target.selectedOptions);
+            console.log('Calling switchToGroup with:', selectedGroupId);
+            switchToGroup(selectedGroupId);
+        });
+        console.log('✅ Change event listener added successfully');
+        
+        // Test that the element is responding to events
+        console.log('🧪 Testing element responsiveness...');
+        chatGroupSelector.addEventListener('click', () => {
+            console.log('🖱️ Click event fired on chatGroupSelector');
+        });
+        chatGroupSelector.addEventListener('focus', () => {
+            console.log('🎯 Focus event fired on chatGroupSelector');
+        });
+    } else {
+        console.error('❌ chatGroupSelector is null, cannot add event listener!');
+    }
     
     minimizeChatBtn?.addEventListener('click', () => {
         toggleChatMinimize();
