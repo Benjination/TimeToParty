@@ -546,9 +546,12 @@ function updateChatSelector(groups) {
 }
 
 function switchToGroup(groupId) {
-    console.log('switchToGroup called with:', groupId);
+    console.log('🔄 switchToGroup called with:', groupId);
+    console.log('Previous currentChatGroup:', currentChatGroup);
+    console.log('Previous currentGroupId:', currentGroupId);
     
     if (!groupId) {
+        console.log('❌ No groupId provided, disabling chat');
         currentChatGroup = null;
         currentGroupId = null;
         if (unsubscribeChat) {
@@ -563,16 +566,21 @@ function switchToGroup(groupId) {
         if (submitButton) {
             submitButton.disabled = true;
         }
+        console.log('✅ Chat disabled for empty selection');
         return;
     }
 
     // Save last selected group
     lastSelectedGroup = groupId;
     localStorage.setItem('lastChatGroup', groupId);
+    console.log('💾 Saved last selected group:', groupId);
     
     // Switch to the selected group chat
     if (currentChatGroup !== groupId) {
+        console.log('🔄 Switching to new group:', groupId);
+        
         if (unsubscribeChat) {
+            console.log('🔌 Unsubscribing from previous chat');
             unsubscribeChat();
         }
         
@@ -592,25 +600,35 @@ function switchToGroup(groupId) {
             chatInput.placeholder = 'Type your message...';
             chatInput.style.pointerEvents = 'auto'; // Ensure pointer events work
             chatInput.style.cursor = 'text'; // Show text cursor
-            console.log('Chat input enabled. Disabled status:', chatInput.disabled);
+            console.log('✅ Chat input enabled. Disabled status:', chatInput.disabled);
         }
         
         const submitButton = chatForm.querySelector('button[type="submit"]');
         if (submitButton) {
             submitButton.disabled = false;
-            console.log('Submit button enabled. Disabled status:', submitButton.disabled);
+            console.log('✅ Submit button enabled. Disabled status:', submitButton.disabled);
         }
         
         // Test if input is clickable
         setTimeout(() => {
             if (chatInput) {
-                chatInput.focus();
-                console.log('Attempted to focus input after 500ms');
+                console.log('🎯 Testing input focus after 500ms...');
+                try {
+                    chatInput.focus();
+                    console.log('✅ Focus attempt completed');
+                    console.log('Active element:', document.activeElement);
+                    console.log('Is input focused?', document.activeElement === chatInput);
+                } catch (error) {
+                    console.error('❌ Focus attempt failed:', error);
+                }
             }
         }, 500);
         
         // Start listening to messages
+        console.log('🔊 Starting message listener...');
         listenToMessages();
+    } else {
+        console.log('ℹ️ Already on this group, no switch needed');
     }
 }
 
@@ -634,8 +652,6 @@ window.removeMember = removeMember;
 
 // Edit Group Functions
 let currentEditGroupId = null;
-
-}
 
 // Find Available Times Modal Functions
 async function findAvailableTimes(groupId) {
@@ -1390,6 +1406,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Chat event listeners
     chatGroupSelector?.addEventListener('change', (e) => {
         const selectedGroupId = e.target.value;
+        console.log('Chat group selector changed to:', selectedGroupId);
+        console.log('Event target:', e.target);
+        console.log('Event target value:', e.target.value);
+        console.log('Selected options:', e.target.selectedOptions);
+        console.log('Calling switchToGroup with:', selectedGroupId);
         switchToGroup(selectedGroupId);
     });
     
