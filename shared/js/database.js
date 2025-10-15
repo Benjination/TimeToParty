@@ -264,6 +264,9 @@ export async function getUserFriends(userId) {
 
 // Utility function to generate invite link
 export function generateInviteLink(groupId) {
-    const baseUrl = window.location.origin;
-    return `${baseUrl}/pages/join-group/join-group.html?groupId=${groupId}`;
+    // For GitHub Pages, always use the full repository path
+    const baseUrl = 'https://benjination.github.io/TimeToParty';
+    const inviteLink = `${baseUrl}/pages/join-group/join-group.html?groupId=${groupId}`;
+    console.log('Generated invite link:', inviteLink);
+    return inviteLink;
 }
