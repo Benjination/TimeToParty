@@ -26,7 +26,8 @@ import {
     getGroup, 
     generateInviteLink,
     createUserProfile,
-    getUserProfile
+    getUserProfile,
+    getUsersByIds
 } from '../../shared/js/database.js';
 
 // DOM Elements
@@ -245,11 +246,48 @@ async function viewGroupDetails(groupId) {
         
         if (result.success) {
             const group = result.data;
+            
+            // Fetch usernames for all members and host
+            const memberProfiles = {};
+            const allUserIds = [...new Set([group.hostId, ...group.members])]; // Remove duplicates
+            
+            console.log('📝 Fetching profiles for users:', allUserIds);
+            
+            // Fetch all user profiles
+            for (const userId of allUserIds) {
+                try {
+                    const userResult = await getUserProfile(userId);
+                    if (userResult.success && userResult.data) {
+                        memberProfiles[userId] = {
+                            username: userResult.data.username || userResult.data.email || 'Unknown User',
+                            email: userResult.data.email
+                        };
+                    } else {
+                        memberProfiles[userId] = {
+                            username: 'Unknown User',
+                            email: 'unknown@example.com'
+                        };
+                    }
+                } catch (error) {
+                    console.error(`Error fetching profile for ${userId}:`, error);
+                    memberProfiles[userId] = {
+                        username: 'Unknown User',
+                        email: 'unknown@example.com'
+                    };
+                }
+            }
+            
+            console.log('👥 Member profiles loaded:', memberProfiles);
+            
+            // Get host information
+            const hostInfo = memberProfiles[group.hostId];
+            const hostDisplayName = hostInfo ? hostInfo.username : group.hostId;
+            
             document.getElementById('group-details').innerHTML = `
                 <h2>${group.name}</h2>
                 <div class="group-detail-info">
                     <p><strong>Party ID:</strong> ${group.groupId}</p>
-                    <p><strong>Host:</strong> ${group.hostId}</p>
+                    <p><strong>Host:</strong> ${hostDisplayName}</p>
                     <p><strong>Players:</strong> ${group.members.length}/${group.maxPlayers}</p>
                     <p><strong>Description:</strong> ${group.description || 'No description'}</p>
                     <p><strong>Created:</strong> ${group.createdAt ? new Date(group.createdAt.toDate()).toLocaleDateString() : 'Unknown'}</p>
@@ -257,14 +295,19 @@ async function viewGroupDetails(groupId) {
                 <div class="group-members-list">
                     <h3>Party Members</h3>
                     <div class="members-grid">
-                        ${group.members.map(memberId => `
-                            <div class="member-card">
-                                <div class="member-info">
-                                    <span class="member-id">${memberId}</span>
-                                    ${memberId === group.hostId ? '<span class="host-badge">Host</span>' : ''}
+                        ${group.members.map(memberId => {
+                            const memberInfo = memberProfiles[memberId];
+                            const memberDisplayName = memberInfo ? memberInfo.username : memberId;
+                            
+                            return `
+                                <div class="member-card">
+                                    <div class="member-info">
+                                        <span class="member-name">${memberDisplayName}</span>
+                                        ${memberId === group.hostId ? '<span class="host-badge">Host</span>' : ''}
+                                    </div>
                                 </div>
-                            </div>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
                 </div>
             `;
