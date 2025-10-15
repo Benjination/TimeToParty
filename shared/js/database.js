@@ -70,13 +70,30 @@ export async function getUserByEmail(email) {
 
 export async function getUsersByIds(userIds) {
     try {
+        console.log('Getting user profiles for IDs:', userIds);
         const users = [];
+        
         for (const userId of userIds) {
             const userResult = await getUserProfile(userId);
-            if (userResult.success) {
-                users.push({ id: userId, ...userResult.data });
+            if (userResult.success && userResult.data) {
+                users.push({ 
+                    id: userId, 
+                    uid: userId, // Keep both for compatibility
+                    ...userResult.data 
+                });
+            } else {
+                console.warn(`Failed to load profile for user ${userId}`);
+                // Add placeholder user if profile fails to load
+                users.push({
+                    id: userId,
+                    uid: userId,
+                    username: 'Unknown User',
+                    email: 'unknown@example.com'
+                });
             }
         }
+        
+        console.log('Loaded user profiles:', users);
         return { success: true, data: users };
     } catch (error) {
         console.error('Error getting users by IDs:', error);

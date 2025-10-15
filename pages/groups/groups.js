@@ -1007,6 +1007,7 @@ function formatTimeSlot(slotIndex) {
 
 async function editGroup(groupId) {
     currentEditGroupId = groupId;
+    console.log('🎛️ Opening edit modal for group:', groupId);
     
     try {
         const result = await getGroup(groupId);
@@ -1016,6 +1017,7 @@ async function editGroup(groupId) {
         }
         
         const group = result.data;
+        console.log('📊 Loaded group data:', group);
         
         // Populate form fields
         document.getElementById('edit-group-name').value = group.name;
@@ -1023,32 +1025,50 @@ async function editGroup(groupId) {
         document.getElementById('edit-max-players').value = group.maxPlayers;
         
         // Load members
+        console.log('👥 Loading members...');
         await loadGroupMembers(group);
         
         // Show modal
         editGroupModal.style.display = 'block';
+        console.log('✅ Edit modal opened successfully');
     } catch (error) {
-        console.error('Error loading group for editing:', error);
+        console.error('❌ Error loading group for editing:', error);
         showError('Failed to load group details');
     }
 }
 
 async function loadGroupMembers(group) {
     try {
-        const members = await getUsersByIds(group.members);
+        console.log('Loading members for group:', group.groupId, 'Members:', group.members);
+        
+        const result = await getUsersByIds(group.members);
+        
+        if (!result.success) {
+            console.error('Failed to load group members:', result.error);
+            membersList.innerHTML = '<div class="member-item">Failed to load members</div>';
+            return;
+        }
+        
+        const members = result.data;
+        console.log('Loaded member profiles:', members);
+        
+        if (members.length === 0) {
+            membersList.innerHTML = '<div class="member-item">No members found</div>';
+            return;
+        }
         
         membersList.innerHTML = members.map(member => {
-            const isHost = member.uid === group.hostId;
-            const isCurrentUser = member.uid === currentUser.uid;
+            const isHost = member.id === group.hostId;
+            const isCurrentUser = member.id === currentUser.uid;
             
             return `
                 <div class="member-item">
                     <div class="member-info">
-                        ${member.username || member.email}
+                        ${member.username || member.email || 'Unknown User'}
                         ${isHost ? '<span class="member-role">HOST</span>' : ''}
                     </div>
                     ${!isHost && !isCurrentUser ? 
-                        `<button class="remove-member-btn" onclick="removeMember('${member.uid}')">Remove</button>` : 
+                        `<button class="remove-member-btn" onclick="removeMember('${member.id}')">Remove</button>` : 
                         ''
                     }
                 </div>
